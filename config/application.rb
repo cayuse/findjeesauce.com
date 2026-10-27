@@ -37,7 +37,9 @@ module Findjeesauce
     # config.eager_load_paths << Rails.root.join("extras")
 
     require_relative "../app/middleware/canonical_host"
-    config.middleware.insert_before 0, CanonicalHost
+    require_relative "../app/middleware/read_only"
+    config.middleware.insert_before 0, ReadOnly
+    config.middleware.insert_after ReadOnly, CanonicalHost
 
     # Don't generate system test files.
     config.generators.system_tests = nil

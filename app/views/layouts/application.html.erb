@@ -6,7 +6,6 @@
     <meta name="description" content="<%= content_for?(:description) ? yield(:description) : "Find a store near you that carries JeeSauce whipped almond hummus." %>">
     <% if noindex? %><meta name="robots" content="noindex, nofollow"><% end %>
     <% if maps_key %><meta name="google-maps-key" content="<%= maps_key %>"><% end %>
-    <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
     <%= yield :head %>
 
