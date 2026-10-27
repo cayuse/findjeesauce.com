@@ -44,7 +44,7 @@ export default class extends Controller {
     })
 
     if (all) {
-      new MarkerClusterer({ map, markers })
+      new MarkerClusterer({ map, markers, renderer: { render: (cluster) => this.clusterMarker(maps, cluster) } })
       return
     }
     markers.forEach((marker) => marker.setMap(map))
@@ -54,6 +54,22 @@ export default class extends Controller {
       if (this.hasCenterValue && this.centerValue.lat) bounds.extend(this.centerValue)
       map.fitBounds(bounds, 48)
     }
+  }
+
+  // A cluster: a JeeSauce-teal circle with the store count. Drawn as a
+  // classic marker, because the library's default needs a Google "Map ID".
+  clusterMarker(maps, { count, position }) {
+    const size = count < 10 ? 34 : count < 100 ? 42 : 52
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 40 40">
+      <circle cx="20" cy="20" r="19" fill="#1badcf" fill-opacity="0.25"/>
+      <circle cx="20" cy="20" r="14" fill="#1badcf" stroke="#fff" stroke-width="2"/></svg>`
+    return new maps.Marker({
+      position,
+      icon: { url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`, scaledSize: new maps.Size(size, size), anchor: new maps.Point(size / 2, size / 2) },
+      label: { text: String(count), color: "#ffffff", fontSize: "12px", fontWeight: "700" },
+      title: `${count} stores`,
+      zIndex: 1000 + count,
+    })
   }
 
   async fetchFeed() {
