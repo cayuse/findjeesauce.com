@@ -45,6 +45,14 @@ export default class extends Controller {
 
     if (all) {
       new MarkerClusterer({ map, markers, renderer: { render: (cluster) => this.clusterMarker(maps, cluster) } })
+      // Start on wherever the stores are in the lower 48 (Alaska and Hawaii
+      // would zoom the whole view out); their pins are a pan or zoom away.
+      const lower48 = stores.filter((s) => s.lat > 24 && s.lat < 50 && s.lng > -125 && s.lng < -66)
+      if (lower48.length) {
+        const bounds = new maps.LatLngBounds()
+        lower48.forEach((s) => bounds.extend(s))
+        map.fitBounds(bounds, 24)
+      }
       return
     }
     markers.forEach((marker) => marker.setMap(map))
