@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc><%= root_url %></loc></url>
+<% @stores.each do |store| %>
+  <url><loc><%= store_url(store) %></loc><lastmod><%= (store.rep_updated_at || store.updated_at).to_date.iso8601 %></lastmod></url>
+<% end %>
+</urlset>

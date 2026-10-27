@@ -1,0 +1,114 @@
+{
+  "data": [
+    {
+      "id": 313,
+      "name": "Safeway",
+      "chain": "Safeway",
+      "street": "1610 West Lincoln Ave",
+      "street2": null,
+      "city": "Yakima",
+      "state": "WA",
+      "zip": "98902",
+      "lat": 46.603378,
+      "lng": -120.530701,
+      "flavors": [
+        "Cilantro Lime",
+        "Original",
+        "Sun-Dried Tomato Basil"
+      ],
+      "updated_at": "2026-08-27T22:09:40Z"
+    },
+    {
+      "id": 318,
+      "name": "Albertson",
+      "chain": "Albertsons",
+      "street": "1024 21st St.",
+      "street2": null,
+      "city": "Lewiston",
+      "state": "ID",
+      "zip": "83501",
+      "lat": 46.410062,
+      "lng": -117.002018,
+      "flavors": [
+        "Cilantro Lime",
+        "Original",
+        "Sun-Dried Tomato Basil"
+      ],
+      "updated_at": "2026-08-27T22:09:39Z"
+    },
+    {
+      "id": 928,
+      "name": "TEST \u2014 Joel Store C",
+      "chain": null,
+      "street": "300 Test Blvd",
+      "street2": null,
+      "city": "Sugar Land",
+      "state": "TX",
+      "zip": "77478",
+      "lat": 29.58,
+      "lng": -95.62,
+      "flavors": [],
+      "updated_at": "2026-10-03T04:11:59Z"
+    }
+  ],
+  "columns": [
+    {
+      "name": "id",
+      "type": "id"
+    },
+    {
+      "name": "name",
+      "type": "string"
+    },
+    {
+      "name": "chain",
+      "type": "string"
+    },
+    {
+      "name": "street",
+      "type": "string"
+    },
+    {
+      "name": "street2",
+      "type": "string"
+    },
+    {
+      "name": "city",
+      "type": "string"
+    },
+    {
+      "name": "state",
+      "type": "string"
+    },
+    {
+      "name": "zip",
+      "type": "string"
+    },
+    {
+      "name": "lat",
+      "type": "decimal"
+    },
+    {
+      "name": "lng",
+      "type": "decimal"
+    },
+    {
+      "name": "flavors",
+      "type": "list"
+    },
+    {
+      "name": "updated_at",
+      "type": "datetime"
+    }
+  ],
+  "meta": {
+    "as_of": "2026-10-27T21:40:00Z",
+    "sources": [
+      {
+        "name": "live",
+        "as_of": "2026-10-27T21:40:00Z"
+      }
+    ],
+    "count": 7
+  }
+}

@@ -1,0 +1,126 @@
+{
+  "data": [
+    {
+      "id": 17,
+      "name": "Anderson Mill H-E-B plus!",
+      "chain": "H-E-B",
+      "street": "11521 North FM620, Building A",
+      "street2": null,
+      "city": "Austin",
+      "state": "TX",
+      "zip": "78726-1168",
+      "lat": 30.452244,
+      "lng": -97.826895,
+      "flavors": [
+        "Cilantro Lime",
+        "Dilly Dilly",
+        "Original",
+        "Sun-Dried Tomato Basil"
+      ],
+      "updated_at": "2026-10-16T22:55:43Z"
+    },
+    {
+      "id": 124,
+      "name": "Jewel Osco",
+      "chain": "Jewel-Osco",
+      "street": "1340 Patriot Blvd",
+      "street2": null,
+      "city": "Glenview",
+      "state": "IL",
+      "zip": "60025",
+      "lat": 42.080074,
+      "lng": -87.818519,
+      "flavors": [],
+      "updated_at": "2026-08-27T22:09:35Z"
+    },
+    {
+      "id": 131,
+      "name": "Jewel Osco",
+      "chain": "Jewel-Osco",
+      "street": "1276 N Main Street",
+      "street2": null,
+      "city": "Crown Point",
+      "state": "IN",
+      "zip": "46307",
+      "lat": 41.431123,
+      "lng": -87.364582,
+      "flavors": [],
+      "updated_at": "2026-08-27T22:09:45Z"
+    },
+    {
+      "id": 158,
+      "name": "Jewel Osco",
+      "chain": "Jewel-Osco",
+      "street": "1307 N 2nd St",
+      "street2": null,
+      "city": "Clinton",
+      "state": "IA",
+      "zip": "52732",
+      "lat": 41.858691,
+      "lng": -90.184797,
+      "flavors": [],
+      "updated_at": "2026-08-27T22:09:45Z"
+    }
+  ],
+  "columns": [
+    {
+      "name": "id",
+      "type": "id"
+    },
+    {
+      "name": "name",
+      "type": "string"
+    },
+    {
+      "name": "chain",
+      "type": "string"
+    },
+    {
+      "name": "street",
+      "type": "string"
+    },
+    {
+      "name": "street2",
+      "type": "string"
+    },
+    {
+      "name": "city",
+      "type": "string"
+    },
+    {
+      "name": "state",
+      "type": "string"
+    },
+    {
+      "name": "zip",
+      "type": "string"
+    },
+    {
+      "name": "lat",
+      "type": "decimal"
+    },
+    {
+      "name": "lng",
+      "type": "decimal"
+    },
+    {
+      "name": "flavors",
+      "type": "list"
+    },
+    {
+      "name": "updated_at",
+      "type": "datetime"
+    }
+  ],
+  "meta": {
+    "as_of": "2026-10-27T21:40:00Z",
+    "sources": [
+      {
+        "name": "live",
+        "as_of": "2026-10-27T21:40:00Z"
+      }
+    ],
+    "count": 7,
+    "next": "/api/v1/stores?cursor=page2"
+  }
+}

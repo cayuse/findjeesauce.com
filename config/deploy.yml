@@ -1,0 +1,45 @@
+# Kamal BASE config for findjeesauce — shared by every destination. Same
+# shape as rep (cayuse/sauce) and jeehq: hosts and proxy live in the
+# destination overlays, so every command names one:
+#   kamal deploy -d staging      → bigballs, test.findjeesauce.com (behind its nginx)
+#   kamal deploy -d production   → the GCP box, findjeesauce.com + www (kamal-proxy)
+# Runs from gameforge as the `sauce` role account. Secrets resolve from
+# /home/sauce/secrets/findjeesauce/ via .kamal/secrets-common (no values in git).
+
+service: findjeesauce
+image: cayuse/findjeesauce
+require_destination: true
+
+registry:
+  server: ghcr.io
+  username: cayuse
+  password:
+    - KAMAL_REGISTRY_PASSWORD
+
+ssh:
+  user: sauce
+
+builder:
+  arch: amd64
+
+env:
+  clear:
+    # Rep's PostGIS accessory on the same box, over the kamal network. Our own
+    # role and databases there (bin/db-role); rep's data is invisible to us.
+    DATABASE_HOST: sauce-postgis
+    DATABASE_PORT: "5432"
+    SOLID_QUEUE_IN_PUMA: "true"
+  secret:
+    - RAILS_MASTER_KEY
+    - FINDJEESAUCE_DATABASE_PASSWORD
+    - REP_API_TOKEN                   # rep token, client findjeesauce, scope stores:read
+    - GOOGLE_MAPS_BROWSER_API_KEY     # our OWN key (not rep's), referrer-locked to our hosts
+
+aliases:
+  console: app exec --interactive --reuse "bin/rails console"
+  shell: app exec --interactive --reuse "bash"
+  logs: app logs -f
+  sync: app exec --reuse "bin/rails stores:sync"
+  status: app exec --reuse "bin/rails stores:status"
+
+asset_path: /rails/public/assets

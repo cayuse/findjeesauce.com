@@ -1,0 +1,25 @@
+<%# One store card. `store` may carry a `distance` (miles) from Store.near. %>
+<li class="rounded-2xl bg-white p-4 shadow-[0_1px_2px_rgb(0_0_0/0.06),0_8px_24px_-14px_rgb(0_0_0/0.2)]">
+  <div class="flex items-start justify-between gap-3">
+    <div class="min-w-0">
+      <h3 class="font-display text-lg font-bold leading-tight">
+        <%= link_to store.name, store_path(store), class: "hover:text-teal-dark" %>
+      </h3>
+      <p class="mt-1 text-sm text-muted"><%= store.address_line %><br><%= store.place_line %></p>
+    </div>
+    <% if store.respond_to?(:distance) && store.distance %>
+      <span class="shrink-0 rounded-full bg-cream px-2.5 py-1 text-xs font-semibold"><%= number_with_precision(store.distance, precision: store.distance < 10 ? 1 : 0) %> mi</span>
+    <% end %>
+  </div>
+  <% if store.flavors.any? %>
+    <ul class="mt-3 flex flex-wrap gap-1.5" aria-label="Flavors this store stocks">
+      <% store.flavors.each do |flavor| %>
+        <li class="rounded-full border border-line px-2.5 py-0.5 text-xs"><%= flavor %></li>
+      <% end %>
+    </ul>
+  <% end %>
+  <div class="mt-4 flex gap-2">
+    <a href="<%= store.directions_url %>" target="_blank" rel="noopener" class="flex-1 rounded-full bg-ink px-4 py-2 text-center text-sm font-semibold text-white hover:bg-teal-dark sm:flex-none">Directions</a>
+    <%= link_to "Store details", store_path(store), class: "flex-1 rounded-full border border-ink px-4 py-2 text-center text-sm font-semibold hover:bg-ink hover:text-white sm:flex-none" %>
+  </div>
+</li>

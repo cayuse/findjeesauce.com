@@ -1,0 +1,37 @@
+# Dev and test: the compose Postgres (compose.yaml, .env).
+# Production (staging and live): the sauce-postgis cluster rep already runs on
+# each box, reached over the kamal network. findjeesauce has its OWN role and
+# its OWN three databases there (bin/db-role creates them); it can't see rep's.
+default: &default
+  adapter: postgresql
+  encoding: unicode
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  host: <%= ENV.fetch("DATABASE_HOST", "localhost") %>
+  port: <%= ENV.fetch("DATABASE_PORT", 5432) %>
+
+development:
+  <<: *default
+  database: findjeesauce_development
+  username: <%= ENV.fetch("DATABASE_USERNAME", nil) %>
+  password: <%= ENV.fetch("DATABASE_PASSWORD", nil) %>
+
+test:
+  <<: *default
+  database: findjeesauce_test
+  username: <%= ENV.fetch("DATABASE_USERNAME", nil) %>
+  password: <%= ENV.fetch("DATABASE_PASSWORD", nil) %>
+
+production:
+  primary: &primary_production
+    <<: *default
+    database: findjeesauce_production
+    username: findjeesauce
+    password: <%= ENV["FINDJEESAUCE_DATABASE_PASSWORD"] %>
+  cache:
+    <<: *primary_production
+    database: findjeesauce_production_cache
+    migrations_paths: db/cache_migrate
+  queue:
+    <<: *primary_production
+    database: findjeesauce_production_queue
+    migrations_paths: db/queue_migrate

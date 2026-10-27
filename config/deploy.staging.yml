@@ -1,0 +1,19 @@
+# STAGING — bigballs, test.findjeesauce.com, behind bigballs' existing nginx
+# (it owns 80/443 and TLS), so no kamal-proxy: the app is published on a fixed
+# localhost port nginx proxies to (docs/nginx/test.findjeesauce.com.conf).
+# Ports on bigballs: rep 9393, jeehq 9394, jeesauce-www 9395, findjeesauce 9396.
+servers:
+  web:
+    hosts:
+      - 192.168.17.109
+    proxy: false
+    options:
+      publish:
+        - "127.0.0.1:9396:80"
+
+env:
+  clear:
+    APP_HOSTS: test.findjeesauce.com
+    CANONICAL_HOST: test.findjeesauce.com
+    REP_API_URL: https://sauce.cavaforge.net   # rep STAGING
+    NOINDEX: "1"                               # never in search results

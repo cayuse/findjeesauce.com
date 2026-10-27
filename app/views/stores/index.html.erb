@@ -1,0 +1,62 @@
+<% content_for :title, @searched ? "Stores near #{@query.presence || "you"}" : "Find JeeSauce near you" %>
+
+<section class="bg-[radial-gradient(60rem_30rem_at_20%_-10%,rgb(27_173_207/0.18),transparent)]">
+  <div class="mx-auto max-w-6xl px-4 pt-8 pb-6 sm:px-6 sm:pt-12">
+    <p class="font-display text-sm font-bold tracking-wide text-teal-dark uppercase">Whipped Almond Hummus</p>
+    <h1 class="mt-1 font-display text-4xl leading-[1.05] font-extrabold tracking-tight sm:text-5xl">Find JeeSauce near you</h1>
+    <p class="mt-3 max-w-xl text-muted">On the shelf at <%= number_with_delimiter(@store_count) %> stores in <%= @state_count %> states. Search by ZIP code or city.</p>
+
+    <%= form_with url: root_path, method: :get, local: true,
+          class: "mt-6 flex max-w-2xl flex-col gap-2 sm:flex-row",
+          data: { controller: "search", action: "submit->search#submit" } do |f| %>
+      <label for="q" class="sr-only">ZIP code or city</label>
+      <%= f.search_field :q, value: @query, id: "q", placeholder: "ZIP code or city, state",
+            autocomplete: "postal-code", inputmode: "search",
+            class: "min-w-0 flex-1 rounded-full border border-line bg-white px-5 py-3 text-base outline-none focus:border-teal focus:ring-2 focus:ring-teal/30",
+            data: { search_target: "query" } %>
+      <%= hidden_field_tag :lat, nil, id: nil, data: { search_target: "lat" } %>
+      <%= hidden_field_tag :lng, nil, id: nil, data: { search_target: "lng" } %>
+      <div class="flex gap-2">
+        <button type="submit" class="flex-1 rounded-full bg-ink px-6 py-3 font-semibold text-white hover:bg-teal-dark sm:flex-none">Search</button>
+        <button type="button" data-action="search#locate" data-search-target="locate"
+                class="flex-1 rounded-full border border-ink bg-white px-5 py-3 font-semibold hover:bg-ink hover:text-white sm:flex-none">
+          Use my location
+        </button>
+      </div>
+      <p class="hidden text-sm text-red-700 sm:basis-full" role="status" data-search-target="message"></p>
+    <% end %>
+  </div>
+</section>
+
+<% if @searched %>
+  <section class="mx-auto max-w-6xl px-4 sm:px-6" aria-live="polite">
+    <% if @stores.any? %>
+      <p class="mb-4 text-sm text-muted">
+        <% if @widened %>
+          Nothing within <%= Store::DEFAULT_RADIUS_MILES %> miles. These are the closest:
+        <% else %>
+          <%= pluralize(@stores.size, "store") %> <%= @lat ? "nearest you" : "matching “#{@query}”" %>
+        <% end %>
+      </p>
+      <div class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
+        <% if maps_key %>
+          <div class="order-first h-72 overflow-hidden rounded-2xl bg-line sm:h-96 lg:sticky lg:top-4 lg:order-last lg:h-[calc(100vh-2rem)]"
+               data-controller="map"
+               data-map-stores-value="<%= @stores.select(&:located?).map { |s| { lat: s.lat.to_f, lng: s.lng.to_f, name: s.name, url: store_path(s) } }.to_json %>"
+               <% if @lat %>data-map-center-value="<%= { lat: @lat, lng: @lng }.to_json %>"<% end %>
+               role="region" aria-label="Map of stores"></div>
+        <% end %>
+        <ul class="flex flex-col gap-3">
+          <%= render partial: "stores/store", collection: @stores %>
+        </ul>
+      </div>
+    <% else %>
+      <div class="max-w-2xl rounded-2xl bg-white p-6">
+        <h2 class="font-display text-xl font-bold">No stores found<%= " for “#{@query}”" if @query.present? %>.</h2>
+        <p class="mt-2 text-muted">Try a nearby ZIP code or city, or skip the trip: every flavor ships to your door.</p>
+        <a href="https://jeesauce.com" class="mt-4 inline-block rounded-full bg-ink px-5 py-2.5 font-semibold text-white hover:bg-teal-dark">Order online</a>
+        <p class="mt-6 text-sm text-muted">Want it at your store? Ask the manager for JeeSauce by name. Stores listen to their regulars.</p>
+      </div>
+    <% end %>
+  </section>
+<% end %>

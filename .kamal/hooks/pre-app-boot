@@ -1,0 +1,10 @@
+#!/bin/sh
+# STAGING ONLY: the container publishes a FIXED host port (127.0.0.1:9396), so
+# the old container must let go of it before the new one boots (a few seconds
+# of 502 from nginx per deploy). Production: kamal-proxy routes; no-op.
+set -e
+[ "$KAMAL_DESTINATION" = "staging" ] || exit 0
+for host in $(echo "$KAMAL_HOSTS" | tr ',' ' '); do
+  ssh sauce@"$host" \
+    'docker ps -q --filter label=service=findjeesauce --filter label=role=web | xargs -r docker stop'
+done

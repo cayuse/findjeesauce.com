@@ -1,0 +1,20 @@
+@import "tailwindcss";
+
+/* JeeSauce corporate colors (the current jeesauce.com theme) until the
+   design guide lands; same tokens as the jeesauce.com rebuild. */
+@theme {
+  --color-teal: #1badcf;
+  --color-teal-dark: #13839e;
+  --color-halo: #f2d826;
+  --color-cream: #fbf8f1;
+  --color-ink: #000000;
+  --color-muted: #55524c;
+  --color-line: #e8e2d4;
+  --font-sans: "Questrial", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Archivo", ui-sans-serif, system-ui, sans-serif;
+}
+
+body {
+  background: var(--color-cream);
+  color: var(--color-ink);
+}

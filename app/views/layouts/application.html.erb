@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title><%= content_for?(:title) ? "#{yield(:title)} · Find JeeSauce" : "Find JeeSauce near you" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="description" content="<%= content_for?(:description) ? yield(:description) : "Find a store near you that carries JeeSauce whipped almond hummus." %>">
+    <% if noindex? %><meta name="robots" content="noindex, nofollow"><% end %>
+    <% if maps_key %><meta name="google-maps-key" content="<%= maps_key %>"><% end %>
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <%= yield :head %>
+
+    <link rel="icon" href="/icon.png" type="image/png">
+    <link rel="apple-touch-icon" href="/icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=Questrial&display=swap" rel="stylesheet">
+
+    <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+
+  <body class="flex min-h-screen flex-col font-sans antialiased">
+    <header class="bg-white/90 border-b border-line">
+      <div class="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-2 sm:px-6">
+        <%= link_to root_path, class: "flex items-center gap-3", aria: { label: "Find JeeSauce home" } do %>
+          <%= image_tag "jeesauce-logo.png", alt: "JeeSauce", class: "h-12 w-auto sm:h-14" %>
+          <span class="font-display text-lg font-bold tracking-tight sm:text-xl">Find JeeSauce</span>
+        <% end %>
+        <a href="https://jeesauce.com" class="rounded-full bg-ink px-4 py-2 text-sm font-semibold text-white hover:bg-teal-dark">Order online</a>
+      </div>
+    </header>
+
+    <main class="flex-1">
+      <%= yield %>
+    </main>
+
+    <footer class="mt-16 bg-ink text-white">
+      <div class="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-8 text-sm sm:flex-row sm:items-center sm:justify-between sm:px-6">
+        <p>Can't find it nearby? Every flavor ships to your door from <a href="https://jeesauce.com" class="underline underline-offset-2">jeesauce.com</a>.</p>
+        <p class="text-white/60">© <%= Date.current.year %> JeeSauce</p>
+      </div>
+    </footer>
+  </body>
+</html>

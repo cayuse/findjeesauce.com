@@ -1,0 +1,19 @@
+# PRODUCTION — the GCP box rep and jeehq run on. kamal-proxy owns 80/443 there
+# and gets Let's Encrypt certificates for both names; CanonicalHost 301s www to
+# the bare domain. DNS: @ A 136.66.254.196, www CNAME findjeesauce.com.
+proxy:
+  ssl: true
+  hosts:
+    - findjeesauce.com
+    - www.findjeesauce.com
+
+servers:
+  web:
+    hosts:
+      - 136.66.254.196
+
+env:
+  clear:
+    APP_HOSTS: findjeesauce.com,www.findjeesauce.com
+    CANONICAL_HOST: findjeesauce.com
+    REP_API_URL: https://rep.jeesauce.com      # rep PRODUCTION

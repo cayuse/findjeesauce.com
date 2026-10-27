@@ -1,0 +1,41 @@
+<% content_for :title, "#{@store.name}, #{@store.place_line}" %>
+<% content_for :description, "#{@store.name} at #{[@store.address_line, @store.place_line].compact_blank.join(', ')} carries JeeSauce whipped almond hummus#{": #{@store.flavors.to_sentence}" if @store.flavors.any?}." %>
+
+<div class="mx-auto max-w-6xl px-4 pt-6 sm:px-6">
+  <%= link_to "← All stores", root_path, class: "text-sm text-muted hover:text-ink" %>
+
+  <div class="mt-4 grid gap-6 lg:grid-cols-2">
+    <div>
+      <% if @store.chain.present? && @store.chain != @store.name %>
+        <p class="font-display text-sm font-bold tracking-wide text-teal-dark uppercase"><%= @store.chain %></p>
+      <% end %>
+      <h1 class="mt-1 font-display text-3xl leading-tight font-extrabold tracking-tight sm:text-4xl"><%= @store.name %></h1>
+      <address class="mt-3 text-lg not-italic"><%= @store.address_line %><br><%= @store.place_line %></address>
+      <a href="<%= @store.directions_url %>" target="_blank" rel="noopener" class="mt-5 inline-block rounded-full bg-ink px-6 py-3 font-semibold text-white hover:bg-teal-dark">Get directions</a>
+
+      <% if @store.flavors.any? %>
+        <h2 class="mt-8 font-display text-xl font-bold">Flavors on this shelf</h2>
+        <ul class="mt-3 flex flex-wrap gap-2">
+          <% @store.flavors.each do |flavor| %>
+            <li class="rounded-full bg-white px-3 py-1 text-sm shadow-sm"><%= flavor %></li>
+          <% end %>
+        </ul>
+        <p class="mt-3 text-sm text-muted">Shelves change. If a flavor's missing, ask the store, or <a href="https://jeesauce.com" class="underline underline-offset-2">order it online</a>.</p>
+      <% end %>
+    </div>
+
+    <% if maps_key && @store.located? %>
+      <div class="h-72 overflow-hidden rounded-2xl bg-line sm:h-96"
+           data-controller="map"
+           data-map-stores-value="<%= [{ lat: @store.lat.to_f, lng: @store.lng.to_f, name: @store.name }].to_json %>"
+           data-map-zoom-value="15" role="region" aria-label="Map"></div>
+    <% end %>
+  </div>
+
+  <% if @nearby.any? %>
+    <h2 class="mt-12 font-display text-2xl font-bold">More stores nearby</h2>
+    <ul class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      <%= render partial: "stores/store", collection: @nearby %>
+    </ul>
+  <% end %>
+</div>

@@ -1,0 +1,43 @@
+# Per-user dev stack (findjeesauce-<you>), the same shape as jeehq's: the app
+# plus its own Postgres. Host ports are picked by Docker (localhost only);
+# `docker compose port app 3000` says which.
+name: findjeesauce-${USER:-dev}
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+      args:
+        UID: ${UID:-1000}
+        GID: ${GID:-1000}
+    command: ./bin/dev
+    env_file: .env
+    environment:
+      RAILS_ENV: development
+    volumes:
+      - .:/rails
+      - bundle:/usr/local/bundle
+    ports:
+      - "127.0.0.1:${DEV_APP_PORT:-}:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+    stdin_open: true
+    tty: true
+
+  db:
+    # Same major version as the sauce-postgis cluster the app runs against.
+    image: postgres:17
+    env_file: .env
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-findjeesauce} -d ${POSTGRES_DB:-findjeesauce_development}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  bundle:
+  pg_data:

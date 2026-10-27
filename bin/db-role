@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+# Create or re-key findjeesauce's database role and its three databases on the
+# sauce-postgis cluster (db/roles/findjeesauce.sql). Same pattern as rep's
+# bin/jeehq-role.
+#
+#   bin/db-role staging        # bigballs, as sauce@
+#   bin/db-role production     # the GCP box, as sauce@
+#
+# Password: /home/sauce/secrets/findjeesauce/db.env (FINDJEESAUCE_DATABASE_PASSWORD=...).
+# It travels to psql on stdin as a \set, never on a command line.
+set -euo pipefail
+
+dest=${1:?usage: bin/db-role staging|production}
+sql="$(cd "$(dirname "$0")/.." && pwd)/db/roles/findjeesauce.sql"
+envfile=${FINDJEESAUCE_DB_ENV:-/home/sauce/secrets/findjeesauce/db.env}
+
+case "$dest" in
+  staging)    host=192.168.17.109 ;;
+  production) host=136.66.254.196 ;;
+  *) echo "db-role: unknown destination '$dest'" >&2; exit 1 ;;
+esac
+
+[ -r "$envfile" ] || { echo "db-role: cannot read $envfile" >&2; exit 1; }
+pw=$(grep '^FINDJEESAUCE_DATABASE_PASSWORD=' "$envfile" | cut -d= -f2-)
+[ -n "$pw" ] || { echo "db-role: FINDJEESAUCE_DATABASE_PASSWORD is empty in $envfile" >&2; exit 1; }
+
+{ printf "\\\\set password '%s'\n" "$pw"; cat "$sql"; } | ssh sauce@"$host" \
+  "docker exec -i sauce-postgis psql -v ON_ERROR_STOP=1 -U sauce -d postgres -f -"
