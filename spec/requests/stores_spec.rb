@@ -59,3 +59,26 @@ RSpec.describe CanonicalHost do
     ENV.delete("CANONICAL_HOST")
   end
 end
+
+RSpec.describe "Embed pages" do
+  let!(:store) { Store.create!(rep_id: 7, name: "Vista Market", city: "Vista", state: "CA", zip: "92081", lat: 33.2, lng: -117.24) }
+
+  it "lets only jeesauce.com and Shopify previews frame the finder" do
+    get "/embed"
+    expect(response).to have_http_status(:ok)
+    expect(response.headers["X-Frame-Options"]).to be_nil
+    expect(response.headers["Content-Security-Policy"]).to include("frame-ancestors 'self' https://jeesauce.com")
+    expect(response.headers["Content-Security-Policy"]).to include("https://*.shopifypreview.com")
+  end
+
+  it "keeps links inside the frame" do
+    get "/embed", params: { q: "92081" }
+    expect(response.body).to include("/embed/stores/7-vista-market-vista-ca")
+    expect(response.body).not_to include("Order online")
+  end
+
+  it "refuses framing everywhere else" do
+    get "/"
+    expect(response.headers["X-Frame-Options"]).to eq("SAMEORIGIN")
+  end
+end

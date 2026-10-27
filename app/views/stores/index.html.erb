@@ -1,12 +1,14 @@
 <% content_for :title, @searched ? "Stores near #{@query.presence || "you"}" : "Find JeeSauce near you" %>
 
-<section class="bg-[radial-gradient(60rem_30rem_at_20%_-10%,rgb(27_173_207/0.18),transparent)]">
-  <div class="mx-auto max-w-6xl px-4 pt-8 pb-6 sm:px-6 sm:pt-12">
-    <p class="font-display text-sm font-bold tracking-wide text-teal-dark uppercase">Whipped Almond Hummus</p>
-    <h1 class="mt-1 font-display text-4xl leading-[1.05] font-extrabold tracking-tight sm:text-5xl">Find JeeSauce near you</h1>
-    <p class="mt-3 max-w-xl text-muted">On the shelf at <%= number_with_delimiter(@store_count) %> stores in <%= @state_count %> states. Search by ZIP code or city.</p>
+<section class="<%= embed? ? "" : "bg-[radial-gradient(60rem_30rem_at_20%_-10%,rgb(27_173_207/0.18),transparent)]" %>">
+  <div class="mx-auto max-w-6xl px-4 <%= embed? ? "pt-2 pb-4" : "pt-8 pb-6 sm:pt-12" %> sm:px-6">
+    <% unless embed? %>
+      <p class="font-display text-sm font-bold tracking-wide text-teal-dark uppercase">Whipped Almond Hummus</p>
+      <h1 class="mt-1 font-display text-4xl leading-[1.05] font-extrabold tracking-tight sm:text-5xl">Find JeeSauce near you</h1>
+    <% end %>
+    <p class="<%= embed? ? "" : "mt-3 " %>max-w-xl text-muted">On the shelf at <%= number_with_delimiter(@store_count) %> stores in <%= @state_count %> states. Search by ZIP code or city.</p>
 
-    <%= form_with url: root_path, method: :get, local: true, skip_enforcing_utf8: true,
+    <%= form_with url: finder_root_path, method: :get, local: true, skip_enforcing_utf8: true,
           class: "mt-6 flex max-w-2xl flex-col gap-2 sm:flex-row",
           data: { controller: "search", action: "submit->search#submit" } do |f| %>
       <label for="q" class="sr-only">ZIP code or city</label>
@@ -42,7 +44,7 @@
         <% if maps_key %>
           <div class="order-first h-72 overflow-hidden rounded-2xl bg-line sm:h-96 lg:sticky lg:top-4 lg:order-last lg:h-[calc(100vh-2rem)]"
                data-controller="map"
-               data-map-stores-value="<%= @stores.select(&:located?).map { |s| { lat: s.lat.to_f, lng: s.lng.to_f, name: s.name, url: store_path(s) } }.to_json %>"
+               data-map-stores-value="<%= @stores.select(&:located?).map { |s| { lat: s.lat.to_f, lng: s.lng.to_f, name: s.name, url: finder_store_path(s) } }.to_json %>"
                <% if @lat %>data-map-center-value="<%= { lat: @lat, lng: @lng }.to_json %>"<% end %>
                role="region" aria-label="Map of stores"></div>
         <% end %>
@@ -59,4 +61,18 @@
       </div>
     <% end %>
   </section>
+<% end %>
+
+<% unless @searched %>
+  <% if maps_key %>
+    <%# Every store before anyone searches: the full Google map, pins merged
+        into numbered clusters until zoomed in (owner 2026-10-27). %>
+    <section class="mx-auto max-w-6xl px-4 sm:px-6">
+      <div class="h-[60vh] min-h-96 overflow-hidden rounded-2xl bg-line"
+           data-controller="map"
+           data-map-feed-value="<%= stores_feed_path(format: :json) %>"
+           data-map-link-base-value="<%= embed? ? "/embed/stores/" : "/stores/" %>"
+           role="region" aria-label="Map of every store that carries JeeSauce"></div>
+    </section>
+  <% end %>
 <% end %>

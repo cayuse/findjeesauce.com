@@ -2,7 +2,7 @@
 <% content_for :description, "#{@store.name} at #{[@store.address_line, @store.place_line].compact_blank.join(', ')} carries JeeSauce whipped almond hummus#{": #{@store.flavors.to_sentence}" if @store.flavors.any?}." %>
 
 <div class="mx-auto max-w-6xl px-4 pt-6 sm:px-6">
-  <%= link_to "← All stores", root_path, class: "text-sm text-muted hover:text-ink" %>
+  <%= link_to "← All stores", finder_root_path, class: "text-sm text-muted hover:text-ink" %>
 
   <div class="mt-4 grid gap-6 lg:grid-cols-2">
     <div>

@@ -18,6 +18,6 @@ class FeedsController < ApplicationController
 
   def row(s)
     { id: s.rep_id, name: s.name, chain: s.chain, street: s.street, street2: s.street2, city: s.city,
-      state: s.state, zip: s.zip, lat: s.lat.to_f, lng: s.lng.to_f, flavors: s.flavors, url: store_url(s) }
+      state: s.state, zip: s.zip, lat: s.lat.to_f, lng: s.lng.to_f, flavors: s.flavors, slug: s.to_param, url: store_url(s) }
   end
 end

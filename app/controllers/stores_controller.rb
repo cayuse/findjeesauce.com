@@ -25,7 +25,7 @@ class StoresController < ApplicationController
 
   def show
     @store = Store.find_by_param!(params[:id])
-    return redirect_to(store_path(@store), status: :moved_permanently) if params[:id] != @store.to_param
+    return redirect_to(finder_store_path(@store), status: :moved_permanently) if params[:id] != @store.to_param
 
     @nearby = @store.located? ? Store.near(@store.lat, @store.lng, within: 25, limit: 7).where.not(id: @store.id).to_a : []
   end

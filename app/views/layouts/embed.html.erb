@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title><%= content_for?(:title) ? "#{yield(:title)} · Find JeeSauce" : "Find JeeSauce near you" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <%# Framed pages never get indexed on their own: the page that frames them does. %>
+    <meta name="robots" content="noindex">
+    <% if maps_key %><meta name="google-maps-key" content="<%= maps_key %>"><% end %>
+    <%= csp_meta_tag %>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=Questrial&display=swap" rel="stylesheet">
+    <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+
+  <%# Transparent, so the finder sits on whatever page frames it. %>
+  <body class="embed font-sans antialiased" style="background: transparent">
+    <main class="pb-4">
+      <%= yield %>
+    </main>
+    <script>
+      // Tell the framing page how tall we are, so its frame never scrolls on
+      // its own (jeesauce.com's store-finder section listens for this).
+      (() => {
+        const send = () => parent.postMessage({ type: "findjeesauce:height", height: document.documentElement.scrollHeight }, "*")
+        new ResizeObserver(send).observe(document.body)
+        addEventListener("load", send)
+        document.addEventListener("turbo:load", send)
+      })()
+    </script>
+  </body>
+</html>
