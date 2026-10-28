@@ -1,0 +1,18 @@
+<%# "Available at": the big chains, each to a page on its own site that sells
+    JeeSauce. Lettered badges, not the chains' logos. %>
+<div class="<%= local_assigns[:class] %>">
+  <p class="text-sm font-semibold">Available at</p>
+  <ul class="mt-2 flex flex-wrap items-center gap-2">
+    <% Flavor::RETAILERS.each do |shop| %>
+      <li>
+        <a href="<%= shop[:url] %>" target="_blank" rel="noopener"
+           class="inline-flex items-center gap-2 rounded-full border border-line bg-white py-1.5 pr-4 pl-1.5 text-sm font-semibold shadow-sm transition hover:-translate-y-px hover:border-ink">
+          <span class="grid size-7 place-items-center rounded-full font-display text-xs font-extrabold text-white" style="background: <%= shop[:color] %>" aria-hidden="true"><%= shop[:name].first %></span>
+          <%= shop[:name] %>
+          <span aria-hidden="true" class="text-muted">↗</span>
+        </a>
+      </li>
+    <% end %>
+    <li class="text-sm font-semibold text-muted">and many more!</li>
+  </ul>
+</div>

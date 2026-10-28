@@ -85,7 +85,10 @@ class Store < ApplicationRecord
 
   # [flavor name, URL] for each flavor this store carries that its chain sells
   # on its own site ("Buy at H-E-B").
-  def chain_links = sorted_flavors.filter_map { |name| (url = Flavor.chain_link(chain, name)) && [ name, url ] }
+  def chain_links = sorted_flavors.filter_map { |name| (url = Flavor.chain_link(shop_chain, name)) && [ name, url ] }
+
+  # Which chain's shop links apply: see Flavor.shop_chain.
+  def shop_chain = Flavor.shop_chain(chain, name)
 
   def located? = lat.present? && lng.present?
   def address_line = [ street, street2 ].compact_blank.join(", ")

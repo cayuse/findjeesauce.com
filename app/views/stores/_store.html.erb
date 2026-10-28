@@ -26,9 +26,9 @@
     <a href="<%= store.directions_url %>" target="_blank" rel="noopener" class="flex-1 whitespace-nowrap rounded-full bg-ink px-4 py-2 text-center text-sm font-semibold text-white hover:bg-teal-dark sm:flex-none">Directions</a>
     <%= link_to "Store details", finder_store_path(store, flavor: @flavor&.slug), class: "flex-1 whitespace-nowrap rounded-full border border-ink px-4 py-2 text-center text-sm font-semibold hover:bg-ink hover:text-white sm:flex-none" %>
     <% if buy %>
-      <a href="<%= buy.last %>" target="_blank" rel="noopener" class="flex-1 whitespace-nowrap rounded-full bg-halo px-4 py-2 text-center text-sm font-semibold text-ink hover:bg-[#e0c510] sm:flex-none">Buy <%= buy.first if @flavor || links.one? %> at <%= Flavor.chain_label(store.chain) %></a>
+      <a href="<%= buy.last %>" target="_blank" rel="noopener" class="flex-1 whitespace-nowrap rounded-full bg-halo px-4 py-2 text-center text-sm font-semibold text-ink hover:bg-[#e0c510] sm:flex-none">Buy <%= buy.first if @flavor || links.one? %> at <%= Flavor.chain_label(store.shop_chain) %></a>
     <% elsif links.any? %>
-      <%= link_to "Buy at #{Flavor.chain_label(store.chain)}", finder_store_path(store, flavor: @flavor&.slug, anchor: "buy"), class: "flex-1 whitespace-nowrap rounded-full bg-halo px-4 py-2 text-center text-sm font-semibold text-ink hover:bg-[#e0c510] sm:flex-none" %>
+      <%= link_to "Buy at #{Flavor.chain_label(store.shop_chain)}", finder_store_path(store, flavor: @flavor&.slug, anchor: "buy"), class: "flex-1 whitespace-nowrap rounded-full bg-halo px-4 py-2 text-center text-sm font-semibold text-ink hover:bg-[#e0c510] sm:flex-none" %>
     <% end %>
   </div>
 </li>

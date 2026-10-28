@@ -18,12 +18,12 @@
         <ul class="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
           <% @store.sorted_flavors.each do |name| %>
             <% flavor = Flavor.named(name) %>
-            <% url = Flavor.chain_link(@store.chain, name) %>
+            <% url = Flavor.chain_link(@store.shop_chain, name) %>
             <li class="<%= class_names("flex flex-col items-center gap-2 rounded-2xl bg-white p-3 text-center shadow-sm", "ring-2 ring-ink": @flavor&.name == name) %>">
               <% if flavor %><%= lid_icon flavor, size: 72 %><% end %>
               <span class="text-sm font-semibold leading-tight"><%= name %></span>
               <% if url %>
-                <a href="<%= url %>" target="_blank" rel="noopener" class="w-full rounded-full bg-halo px-3 py-1.5 text-xs font-semibold text-ink hover:bg-[#e0c510]">Buy at <%= Flavor.chain_label(@store.chain) %></a>
+                <a href="<%= url %>" target="_blank" rel="noopener" class="w-full rounded-full bg-halo px-3 py-1.5 text-xs font-semibold text-ink hover:bg-[#e0c510]">Buy at <%= Flavor.chain_label(@store.shop_chain) %></a>
               <% elsif flavor %>
                 <a href="<%= flavor.shop_url %>" class="w-full rounded-full border border-ink px-3 py-1.5 text-xs font-semibold hover:bg-ink hover:text-white">Order online</a>
               <% end %>
@@ -34,7 +34,8 @@
       <% else %>
         <p class="mt-2 text-muted">We don't know which flavors this store stocks yet, so call ahead. Every flavor also <a href="https://jeesauce.com" class="underline underline-offset-2">ships to your door</a>.</p>
       <% end %>
-      <%= render "stores/delivery", class: "mt-6" %>
+      <%= render "stores/retailers", class: "mt-6" %>
+      <%= render "stores/delivery", class: "mt-4" %>
       <% if @flavor && @store.flavor_state(@flavor) == :doesnt %>
         <p class="mt-4 rounded-2xl bg-white p-4 text-sm">
           This store doesn't list <%= @flavor.name %>.

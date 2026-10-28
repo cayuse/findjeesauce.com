@@ -34,7 +34,22 @@ class Flavor < Data.define(:name, :slug, :shop_url, :color)
     "Original" => "https://www.albertsons.com/shop/pd/jee-sauce-original-9-oz/971387138",
     "Cilantro Lime" => "https://www.albertsons.com/shop/pd/jee-sauce-cilantro-lime-9-oz/971387139"
   }.freeze
-  CHAIN_LINKS = { "H-E-B" => HEB, "Albertsons" => ALBERTSONS, "Albertsons Mountain West" => ALBERTSONS }.freeze
+  # Better Health Market (Michigan), from the owner 2026-10-28. Not in rep's
+  # feed yet; a store named "Better Health Market …" picks it up once it is.
+  BETTER_HEALTH = {
+    "Original" => "https://betterhealthmarket.com/jee-sauce-sauce-original-9-oz"
+  }.freeze
+  CHAIN_LINKS = { "H-E-B" => HEB, "Albertsons" => ALBERTSONS, "Albertsons Mountain West" => ALBERTSONS,
+                  "Better Health Market" => BETTER_HEALTH }.freeze
+
+  # "Available at": the chains shoppers know, each to a page that sells us.
+  # Safeway and Jewel-Osco are search pages until someone checks a product page.
+  RETAILERS = [
+    { name: "H-E-B", url: HEB["Original"], color: "#e2231a" },
+    { name: "Albertsons", url: ALBERTSONS["Original"], color: "#00539f" },
+    { name: "Safeway", url: "https://www.safeway.com/shop/search-results.html?q=jee%20sauce", color: "#e31837" },
+    { name: "Jewel-Osco", url: "https://www.jewelosco.com/shop/search-results.html?q=jee%20sauce", color: "#d6232a" }
+  ].freeze
 
   # How a chain's button reads: "Buy at H-E-B".
   CHAIN_LABELS = { "Albertsons Mountain West" => "Albertsons" }.freeze
@@ -61,6 +76,14 @@ class Flavor < Data.define(:name, :slug, :shop_url, :color)
   # Rep's names, in our display order; a flavor we don't know yet still shows,
   # after the known ones, as its name.
   def self.sort_names(names) = names.sort_by { |n| [ ALL.index(BY_NAME[n]) || ALL.size, n ] }
+
+  # The CHAIN_LINKS key for a store: its chain, or a key its name starts with
+  # (independents often come through with no chain).
+  def self.shop_chain(chain, name)
+    return chain if CHAIN_LINKS.key?(chain)
+
+    CHAIN_LINKS.keys.find { |key| name.to_s.start_with?(key) }
+  end
 
   def self.chain_link(chain, flavor_name) = CHAIN_LINKS.dig(chain, flavor_name)
   def self.chain_label(chain) = CHAIN_LABELS.fetch(chain, chain)

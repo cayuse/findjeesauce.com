@@ -142,6 +142,21 @@ RSpec.describe "Finding a flavor" do
   end
 end
 
+RSpec.describe "Available at" do
+  it "lists the big chains, each linked to its own site" do
+    get root_path
+    expect(response.body).to include("Available at", "and many more!")
+    Flavor::RETAILERS.each { |shop| expect(response.body).to include(shop[:name], shop[:url]) }
+  end
+
+  it "links a Better Health Market store, which comes through with no chain, to its shop" do
+    store = Store.create!(rep_id: 31, name: "Better Health Market Novi", chain: nil, city: "Novi", state: "MI", zip: "48375",
+                          lat: 42.48, lng: -83.47, flavors: [ "Original", "Dilly Dilly" ])
+    get store_path(store)
+    expect(response.body).to include("Buy at Better Health Market", "betterhealthmarket.com/jee-sauce-sauce-original-9-oz")
+  end
+end
+
 RSpec.describe "Delivery links" do
   it "offers the delivery apps on the finder and on store pages" do
     store = Store.create!(rep_id: 30, name: "Boise Albertsons", chain: "Albertsons Mountain West", city: "Boise", state: "ID", zip: "83702",
