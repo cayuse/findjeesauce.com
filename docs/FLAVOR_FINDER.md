@@ -60,6 +60,48 @@ Tomato Basil 414, Dilly Dilly 249, Chipotle 133.
 - Keep it read-only (findjeesauce never writes to rep or Shopify). A slug
   per flavor ("dilly-dilly") is derived from the name, never stored as truth.
 
+## Get it today: delivery and pickup links (idea, owner 2026-10-27)
+
+"Link to Instacart or DoorDash or whatever, so people can get it, and side
+income, and H-E-B online." Next to a store that carries the flavor, offer
+the ways to have it today:
+
+- **The chain's own online shop** (heb.com curbside/delivery first, then
+  others as they matter): a link to our product's page at that chain, so
+  the cart is one tap away.
+- **Delivery apps** (Instacart, DoorDash, Uber Eats…): a link to that store,
+  or to our product at that store, where the app allows it.
+- **Our own shop** stays the fallback ("Online only" above).
+
+How to build it honestly:
+
+- **A link appears only where someone checked it works.** A link to an empty
+  search or the wrong store is worse than none. Keep a small table of
+  verified links (chain × flavor → URL, plus per-store links where an app
+  needs them) with who checked it and when, and drop or flag links that
+  start failing (a nightly HEAD check is enough).
+- **Start with the data in findjeesauce** (it's a storefront concern). If it
+  later turns out to be master data (rep owns chains and products), move it
+  to rep and publish it in the feed, the same way flavors arrived.
+- **Chain product pages first.** One H-E-B product URL per flavor covers
+  every H-E-B store, and most of the stores are H-E-B. That's the most
+  value for the least upkeep.
+
+**Side income (affiliate links):** some delivery apps run affiliate programs
+that pay for a referred first order. Check each app's CURRENT program and its
+terms before building on it: what it pays for, whether product or store
+links are allowed, and what tracking it needs. Assume no affiliate deal
+exists with any grocery chain until one is found. Two rules if we do it:
+
+- **Say so on the page** (US law requires clear disclosure of paid links),
+  e.g. "We may earn a small fee when you order through these links."
+- **Never let the fee choose the order.** The nearest store that carries it
+  comes first, whoever pays.
+
+Owner calls before building: which apps; whether affiliate links are wanted
+on day one or later; who holds the affiliate accounts (a person at JeeSauce,
+not the code).
+
 ## Mobile ("more mo")
 
 The owner also asked to make the finder feel more like a phone map app, the
