@@ -65,4 +65,7 @@ module ApplicationHelper
     base = flavor&.shop_url || "https://jeesauce.com"
     "#{base}?#{{ utm_source: 'findjeesauce', utm_medium: 'store_finder', utm_campaign: 'find_jeesauce', utm_content: spot }.to_query}"
   end
+
+  # flavor name => lid image URL, for the map's popups.
+  def lid_urls = Flavor.all.to_h { |f| [ f.name, image_path(f.lid) ] }
 end

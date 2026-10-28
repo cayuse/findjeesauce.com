@@ -55,7 +55,9 @@
         <% if maps_key %>
           <div class="order-first h-72 overflow-hidden rounded-2xl bg-line sm:h-96 lg:sticky lg:top-4 lg:order-last lg:h-[calc(100vh-2rem)]"
                data-controller="map"
-               data-map-stores-value="<%= @stores.select(&:located?).map { |s| { lat: s.lat.to_f, lng: s.lng.to_f, name: s.name, url: finder_store_path(s, flavor: @flavor&.slug), flavors: s.sorted_flavors } }.to_json %>"
+               data-map-stores-value="<%= @stores.select(&:located?).map { |s| { lat: s.lat.to_f, lng: s.lng.to_f, name: s.name, url: finder_store_path(s, flavor: @flavor&.slug), flavors: s.sorted_flavors,
+                                                                    address: [ s.street, [ s.city, s.state ].compact_blank.join(", ") ].compact_blank.join(" · ") } }.to_json %>"
+               data-map-lids-value="<%= lid_urls.to_json %>"
                <% if @flavor %>data-map-flavor-value="<%= @flavor.name %>"<% end %>
                <% if @lat %>data-map-center-value="<%= { lat: @lat, lng: @lng }.to_json %>"<% end %>
                role="region" aria-label="Map of stores"></div>
@@ -91,6 +93,7 @@
            data-controller="map"
            data-map-feed-value="<%= stores_feed_path(format: :json) %>"
            data-map-link-base-value="<%= embed? ? "/embed/stores/" : "/stores/" %>"
+           data-map-lids-value="<%= lid_urls.to_json %>"
            <% if @flavor %>data-map-flavor-value="<%= @flavor.name %>" data-map-flavor-slug-value="<%= @flavor.slug %>"<% end %>
            role="region" aria-label="Map of every store that carries JeeSauce"></div>
     </section>

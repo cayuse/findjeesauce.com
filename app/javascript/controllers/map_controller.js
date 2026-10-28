@@ -8,12 +8,13 @@ import { loadGoogleMaps } from "lib/google_maps"
 //           search); pins merge into numbered clusters until zoomed in
 // - center: the searcher's point, included in the fitted view
 // - linkBase: where a store's page lives ("/stores/" or "/embed/stores/")
+// - lids:     flavor name => lid image URL, for the popup's flavor pills
 // - flavor:   a chosen flavor's name. The all-stores map then shows only the
 //             stores that carry it; a search map dims the ones that don't
 //             (a store with no flavor list stays as it is: unknown, not "no")
 export default class extends Controller {
   static values = { stores: Array, feed: String, center: Object, linkBase: String, zoom: { type: Number, default: 12 },
-                    flavor: String, flavorSlug: String }
+                    flavor: String, flavorSlug: String, lids: Object }
 
   // The lower 48, for the all-stores view (fitting every store would zoom out
   // to include Alaska and Hawaii).
@@ -110,34 +111,56 @@ export default class extends Controller {
     return store.flavors.includes(this.flavorValue) ? "carries" : "doesnt"
   }
 
-  // Name, address and a link, built as elements (store names are data, never HTML).
+  // The pin's popup: flavor pills (mini lid + name) on top, then the store
+  // name as a big underlined link with an arrow, the address, and a "store
+  // page" line that reads as a link. Built as elements: store names are
+  // data, never HTML.
   open(map, marker, store) {
-    const box = document.createElement("div")
-    box.style.cssText = "font: 14px/1.4 Questrial, system-ui, sans-serif; max-width: 240px"
-    const name = document.createElement("a")
-    name.href = store.url
-    name.textContent = store.name
-    name.style.cssText = "font-weight: 700; color: #000"
-    box.append(name)
-    if (store.address) {
-      const line = document.createElement("div")
-      line.textContent = store.address
-      line.style.color = "#55524c"
-      box.append(line)
+    const el = (tag, css, text) => {
+      const node = document.createElement(tag)
+      if (css) node.style.cssText = css
+      if (text) node.textContent = text
+      return node
     }
-    const flavors = document.createElement("div")
-    flavors.style.cssText = "margin-top: 6px; font-size: 13px"
+    const box = el("div", "font: 14px/1.35 Questrial, system-ui, sans-serif; max-width: 260px; padding: 2px 2px 4px")
+
+    const flavors = el("div", "display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 8px")
     if (store.flavors?.length) {
-      store.flavors.forEach((name, i) => {
-        const item = document.createElement(name === this.flavorValue ? "strong" : "span")
-        item.textContent = name
-        flavors.append(...(i ? [" · ", item] : [item]))
+      store.flavors.forEach((name) => {
+        const chosen = name === this.flavorValue
+        const pill = el("span", "display: inline-flex; align-items: center; gap: 5px; border: 1px solid " +
+          (chosen ? "#000; background: #000; color: #fff; font-weight: 700" : "#e8e2d4; background: #fff") +
+          "; border-radius: 999px; padding: 2px 9px 2px 2px; font-size: 12px")
+        const lid = this.lidsValue[name]
+        if (lid) {
+          const img = el("img", "width: 20px; height: 20px; border-radius: 999px")
+          img.src = lid
+          img.alt = ""
+          pill.append(img)
+        } else {
+          pill.style.paddingLeft = "9px"
+        }
+        pill.append(name)
+        flavors.append(pill)
       })
     } else {
-      flavors.textContent = "Flavors unknown: call ahead"
-      flavors.style.color = "#55524c"
+      flavors.append(el("span", "color: #55524c; font-size: 12px", "Flavors unknown: call ahead"))
     }
     box.append(flavors)
+
+    const name = el("a", "display: block; font: 700 18px/1.2 Archivo, system-ui, sans-serif; color: #000; " +
+      "text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 2px")
+    name.href = store.url
+    name.textContent = `${store.name} →`
+    box.append(name)
+    if (store.address) box.append(el("div", "margin-top: 3px; color: #55524c; font-size: 13px", store.address))
+
+    const go = el("a", "display: block; margin-top: 10px; font-weight: 700; font-size: 14px; color: #13839e; " +
+      "text-decoration: underline; text-underline-offset: 3px")
+    go.href = store.url
+    go.textContent = "Open store page: share · directions →"
+    box.append(go)
+
     this.info.setContent(box)
     this.info.open({ map, anchor: marker })
   }

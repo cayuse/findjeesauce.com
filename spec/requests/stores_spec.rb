@@ -202,3 +202,13 @@ RSpec.describe "Spread the love" do
     expect(response.body).not_to include("A friend sent you this store")
   end
 end
+
+RSpec.describe "Map popups" do
+  it "gives the map each flavor's lid and each store's address" do
+    allow_any_instance_of(ApplicationController).to receive(:maps_key).and_return("test-key")
+    Store.create!(rep_id: 60, name: "Boise Albertsons", chain: "Albertsons", street: "1 Main St", city: "Boise", state: "ID", zip: "83702",
+                  lat: 43.6, lng: -116.2, flavors: [ "Original", "Cilantro Lime" ])
+    get root_path, params: { lat: 43.6, lng: -116.2 }
+    expect(response.body).to include("data-map-lids-value=", "lids/original", "1 Main St · Boise, ID")
+  end
+end
