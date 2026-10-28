@@ -123,11 +123,11 @@ export default class extends Controller {
 
     ctx.textAlign = "center"
     ctx.globalAlpha = ease(0, 0.6)
-    if (logo) { const w = 360, h = w * logo.height / logo.width; ctx.drawImage(logo, (W - w) / 2, 120, w, h) }
+    if (logo) { const w = 300, h = w * logo.height / logo.width; ctx.drawImage(logo, (W - w) / 2, 100, w, h) }
 
     ctx.globalAlpha = ease(0.4, 0.5)
     ctx.save()
-    ctx.translate(W / 2, 620)
+    ctx.translate(W / 2, 640)
     const s = pop(0.4) || 0.001
     ctx.scale(s, s)
     ctx.fillStyle = INK
@@ -136,14 +136,14 @@ export default class extends Controller {
     ctx.restore()
 
     ctx.globalAlpha = 1
-    const size = lids.length > 3 ? 250 : 300
+    const size = lids.length > 3 ? 210 : 280
     const perRow = lids.length > 3 ? 3 : lids.length
     lids.forEach((lid, i) => {
       if (!lid) return
       const row = Math.floor(i / perRow)
       const inRow = Math.min(perRow, lids.length - row * perRow)
-      const x = W / 2 + (i % perRow - (inRow - 1) / 2) * (size + 40)
-      const y = 860 + row * (size + 40) + size / 2 + Math.sin(t * 3 + i) * 10 * ease(2.5, 1)
+      const x = W / 2 + (i % perRow - (inRow - 1) / 2) * (size + 50)
+      const y = 780 + row * (size + 30) + size / 2 + Math.sin(t * 3 + i) * 10 * ease(2.5, 1)
       const k = pop(1 + i * 0.15)
       if (!k) return
       ctx.save()
@@ -157,7 +157,7 @@ export default class extends Controller {
       ctx.restore()
     })
 
-    const textTop = 860 + Math.ceil(lids.length / perRow) * (size + 40) + 60
+    const textTop = 780 + Math.ceil(lids.length / perRow) * (size + 30) + 50
     ctx.globalAlpha = ease(1.8, 0.6)
     const rise = (1 - ease(1.8, 0.6)) * 40
     ctx.fillStyle = MUTED
@@ -173,7 +173,7 @@ export default class extends Controller {
       .forEach((line, i) => ctx.fillText(line, W / 2, textTop + 110 + nameLines.length * 88 + i * 56 + rise))
 
     ctx.globalAlpha = ease(2.4, 0.6)
-    const pillY = H - 300
+    const pillY = H - 230
     ctx.fillStyle = INK
     this.roundRect(ctx, 110, pillY, W - 220, 150, 75)
     ctx.fillStyle = HALO
