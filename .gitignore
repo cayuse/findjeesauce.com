@@ -12,16 +12,24 @@
 /public/assets
 /app/assets/builds/*
 !/app/assets/builds/.keep
+/coverage
+/spec/examples.txt
+/.byebug_history
+/node_modules
 
-# Secrets: never in git. master.key lives in /home/sauce/secrets/findjeesauce/
+# Secrets: never in git. They live in /home/sauce/secrets/findjeesauce/;
+# .kamal/secrets* are only lookups into that tree and ARE committed.
 /config/master.key
 /config/*.key
+/config/credentials/*.key
 .env
 .env.*
 !.env.example
+*.pem
 
-/coverage
-
-# Ignore key files for decrypting credentials and more.
-/config/*.key
-
+# Editors and OS
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*~
