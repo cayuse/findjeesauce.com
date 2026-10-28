@@ -18,6 +18,7 @@
             data: { search_target: "query" } %>
       <%= hidden_field_tag :lat, nil, id: nil, data: { search_target: "lat" } %>
       <%= hidden_field_tag :lng, nil, id: nil, data: { search_target: "lng" } %>
+      <%= hidden_field_tag :flavor, @flavor.slug, id: nil if @flavor %>
       <div class="flex gap-2">
         <button type="submit" class="flex-1 rounded-full bg-ink px-6 py-3 font-semibold text-white hover:bg-teal-dark sm:flex-none">Search</button>
         <button type="button" data-action="search#locate" data-search-target="locate"
@@ -27,11 +28,15 @@
       </div>
       <p class="hidden text-sm text-red-700 sm:basis-full" role="status" data-search-target="message"></p>
     <% end %>
+
+    <%= render "stores/flavor_picker" %>
+    <%= render "stores/delivery", class: "mt-4" %>
   </div>
 </section>
 
 <% if @searched %>
   <section class="mx-auto max-w-6xl px-4 sm:px-6" aria-live="polite">
+    <%= render "stores/flavor_notice" if @flavor %>
     <% if @stores.any? %>
       <p class="mb-4 text-sm text-muted">
         <% if @widened %>
@@ -44,7 +49,8 @@
         <% if maps_key %>
           <div class="order-first h-72 overflow-hidden rounded-2xl bg-line sm:h-96 lg:sticky lg:top-4 lg:order-last lg:h-[calc(100vh-2rem)]"
                data-controller="map"
-               data-map-stores-value="<%= @stores.select(&:located?).map { |s| { lat: s.lat.to_f, lng: s.lng.to_f, name: s.name, url: finder_store_path(s) } }.to_json %>"
+               data-map-stores-value="<%= @stores.select(&:located?).map { |s| { lat: s.lat.to_f, lng: s.lng.to_f, name: s.name, url: finder_store_path(s, flavor: @flavor&.slug), flavors: s.sorted_flavors } }.to_json %>"
+               <% if @flavor %>data-map-flavor-value="<%= @flavor.name %>"<% end %>
                <% if @lat %>data-map-center-value="<%= { lat: @lat, lng: @lng }.to_json %>"<% end %>
                role="region" aria-label="Map of stores"></div>
         <% end %>
@@ -64,6 +70,9 @@
 <% end %>
 
 <% unless @searched %>
+  <% if @flavor %>
+    <section class="mx-auto max-w-6xl px-4 sm:px-6"><%= render "stores/flavor_notice" %></section>
+  <% end %>
   <% if maps_key %>
     <%# Every store before anyone searches: the full Google map, pins merged
         into numbered clusters until zoomed in (owner 2026-10-27). %>
@@ -72,6 +81,7 @@
            data-controller="map"
            data-map-feed-value="<%= stores_feed_path(format: :json) %>"
            data-map-link-base-value="<%= embed? ? "/embed/stores/" : "/stores/" %>"
+           <% if @flavor %>data-map-flavor-value="<%= @flavor.name %>" data-map-flavor-slug-value="<%= @flavor.slug %>"<% end %>
            role="region" aria-label="Map of every store that carries JeeSauce"></div>
     </section>
   <% end %>

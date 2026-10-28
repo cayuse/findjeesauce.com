@@ -2,7 +2,21 @@
 
 Owner, 2026-10-27: "have the flavors clickable and it dims the map or
 something, and in some cases it can say 'online only' and push them towards
-the store." Nothing here is built. This is the brief; change it as you go.
+the store."
+
+**Built 2026-10-27 (first pass):**
+- Lid icons as flavor buttons on `/`, `/embed` and store pages; `?flavor=` in the URL.
+- Carriers first, the three states, and the sentences below. The nearest carrier is
+  offered within 150 miles.
+- On the map: the all-stores map shows only carriers, and a search map dims stores
+  that don't have the flavor. Pin popups list flavors.
+- Chain buttons ("Buy at H-E-B", "Buy at Albertsons") per flavor, and a "Get it
+  delivered" row (Instacart / DoorDash / Uber Eats searches).
+- All the links live in `app/models/flavor.rb`.
+
+Still open: the mobile map-app layout, and links for Safeway, Jewel-Osco and
+Pavilions. The Instacart brand page would replace its search link. This is the
+brief; change it as you go.
 
 ## What the visitor does
 

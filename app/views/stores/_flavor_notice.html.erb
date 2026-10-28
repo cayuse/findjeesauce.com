@@ -1,0 +1,38 @@
+<%# What the chosen flavor means for this search. A store with no flavor list
+    is never counted as having it, and never as proof it's online only. %>
+<% name = @flavor.name %>
+<% order = link_to "Order #{name} online", @flavor.shop_url, class: "inline-block rounded-full bg-ink px-4 py-2 text-sm font-semibold text-white hover:bg-teal-dark" %>
+<div class="mb-5 flex items-start gap-3 rounded-2xl bg-white p-4 shadow-sm" role="status">
+  <%= lid_icon @flavor, size: 44 %>
+  <div class="min-w-0 flex-1">
+    <% if @flavor_store_count.zero? %>
+      <p class="font-display text-lg font-bold">Online only, for now.</p>
+      <p class="mt-1 text-sm text-muted">No store we know of has <%= name %> yet. It ships to your door.</p>
+      <p class="mt-3"><%= order %></p>
+    <% elsif !@searched %>
+      <p class="font-display text-lg font-bold"><%= name %> is on the shelf at <%= number_with_delimiter(@flavor_store_count) %> <%= "store".pluralize(@flavor_store_count) %>.</p>
+      <p class="mt-1 text-sm text-muted">Search your ZIP code or city for the closest one, or skip the trip.</p>
+      <p class="mt-3"><%= order %></p>
+    <% elsif @carrier_count.positive? %>
+      <% where = @lat ? "near you" : "matching “#{@query}”" %>
+      <p class="font-display text-lg font-bold"><%= pluralize(@carrier_count, "store") %> <%= where %> <%= @carrier_count == 1 ? "carries" : "carry" %> <%= name %>.</p>
+      <p class="mt-1 text-sm text-muted">They're listed first. Or <%= link_to "order it online", @flavor.shop_url, class: "underline underline-offset-2" %>.</p>
+    <% else %>
+      <p class="font-display text-lg font-bold"><%= name %> isn't on a shelf near you yet.</p>
+      <% if @nearest_carrier %>
+        <p class="mt-1 text-sm text-muted">
+          The closest store with it is
+          <%= link_to @nearest_carrier.name, finder_store_path(@nearest_carrier, flavor: @flavor.slug), class: "font-semibold text-ink underline underline-offset-2" %>
+          in <%= @nearest_carrier.city %>, <%= number_with_precision(@nearest_carrier.distance, precision: 0) %> miles away.
+        </p>
+      <% else %>
+        <p class="mt-1 text-sm text-muted">It ships to your door.</p>
+      <% end %>
+      <p class="mt-3"><%= order %></p>
+    <% end %>
+    <% unknown = @searched ? @stores.count { |s| s.flavor_state(@flavor) == :unknown } : 0 %>
+    <% if unknown.positive? %>
+      <p class="mt-2 text-xs text-muted"><%= pluralize(unknown, "store") %> here <%= unknown == 1 ? "doesn't" : "don't" %> list <%= unknown == 1 ? "its" : "their" %> flavors: call ahead.</p>
+    <% end %>
+  </div>
+</div>

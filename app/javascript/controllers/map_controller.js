@@ -8,8 +8,12 @@ import { loadGoogleMaps } from "lib/google_maps"
 //           search); pins merge into numbered clusters until zoomed in
 // - center: the searcher's point, included in the fitted view
 // - linkBase: where a store's page lives ("/stores/" or "/embed/stores/")
+// - flavor:   a chosen flavor's name. The all-stores map then shows only the
+//             stores that carry it; a search map dims the ones that don't
+//             (a store with no flavor list stays as it is: unknown, not "no")
 export default class extends Controller {
-  static values = { stores: Array, feed: String, center: Object, linkBase: String, zoom: { type: Number, default: 12 } }
+  static values = { stores: Array, feed: String, center: Object, linkBase: String, zoom: { type: Number, default: 12 },
+                    flavor: String, flavorSlug: String }
 
   // The lower 48, for the all-stores view (fitting every store would zoom out
   // to include Alaska and Hawaii).
@@ -20,7 +24,8 @@ export default class extends Controller {
     try { maps = await loadGoogleMaps() } catch { maps = null }
     if (!maps) return this.element.remove()
 
-    const stores = this.hasFeedValue ? await this.fetchFeed() : this.storesValue
+    let stores = this.hasFeedValue ? await this.fetchFeed() : this.storesValue
+    if (this.hasFeedValue && this.flavorValue) stores = stores.filter((s) => this.state(s) === "carries")
     if (!stores.length) return this.element.remove()
 
     const { Map, InfoWindow } = await maps.importLibrary("maps")
@@ -38,7 +43,9 @@ export default class extends Controller {
     this.info = new InfoWindow()
 
     const markers = stores.map((store) => {
-      const marker = new Marker({ position: { lat: store.lat, lng: store.lng }, title: store.name })
+      const dim = this.state(store) === "doesnt"
+      const marker = new Marker({ position: { lat: store.lat, lng: store.lng }, title: store.name,
+                                  opacity: dim ? 0.35 : 1, zIndex: dim ? 1 : 10 })
       if (store.url) marker.addListener("click", () => this.open(map, marker, store))
       return marker
     })
@@ -88,11 +95,19 @@ export default class extends Controller {
       return data.map((s) => ({
         lat: s.lat, lng: s.lng, name: s.name,
         address: [s.street, [s.city, s.state].filter(Boolean).join(", ")].filter(Boolean).join(" · "),
-        url: base + s.slug,
+        flavors: s.flavors || [],
+        url: base + s.slug + (this.flavorSlugValue ? `?flavor=${encodeURIComponent(this.flavorSlugValue)}` : ""),
       }))
     } catch {
       return []
     }
+  }
+
+  // "carries", "doesnt" or "unknown" for the chosen flavor (null when none).
+  state(store) {
+    if (!this.flavorValue) return null
+    if (!store.flavors?.length) return "unknown"
+    return store.flavors.includes(this.flavorValue) ? "carries" : "doesnt"
   }
 
   // Name, address and a link, built as elements (store names are data, never HTML).
@@ -110,6 +125,19 @@ export default class extends Controller {
       line.style.color = "#55524c"
       box.append(line)
     }
+    const flavors = document.createElement("div")
+    flavors.style.cssText = "margin-top: 6px; font-size: 13px"
+    if (store.flavors?.length) {
+      store.flavors.forEach((name, i) => {
+        const item = document.createElement(name === this.flavorValue ? "strong" : "span")
+        item.textContent = name
+        flavors.append(...(i ? [" · ", item] : [item]))
+      })
+    } else {
+      flavors.textContent = "Flavors unknown: call ahead"
+      flavors.style.color = "#55524c"
+    }
+    box.append(flavors)
     this.info.setContent(box)
     this.info.open({ map, anchor: marker })
   }

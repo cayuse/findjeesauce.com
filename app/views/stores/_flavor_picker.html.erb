@@ -1,0 +1,27 @@
+<%# The lids as flavor buttons. Plain links (?flavor=…), so they work without
+    JavaScript and a jeesauce.com flavor page can link straight to one. Tapping
+    the chosen flavor again clears it. %>
+<nav aria-label="Pick a flavor" class="mt-6">
+  <p class="text-sm font-semibold">Looking for a flavor?</p>
+  <ul class="-mx-4 mt-1 flex gap-3 overflow-x-auto px-4 pt-2 pb-2 sm:mx-0 sm:flex-wrap sm:px-0">
+    <% Flavor.all.each do |flavor| %>
+      <% chosen = flavor == @flavor %>
+      <li class="shrink-0">
+        <%= link_to flavor_filter_path(chosen ? nil : flavor),
+              aria: { current: (chosen ? "true" : nil) },
+              title: chosen ? "Show every store" : "Stores with #{flavor.name}",
+              class: class_names("group flex w-20 flex-col items-center gap-1.5 text-center text-xs leading-tight",
+                                 "opacity-45 hover:opacity-100": @flavor && !chosen) do %>
+          <%= lid_icon flavor, size: 64, class: class_names("transition-transform group-hover:scale-105 shadow-[0_2px_6px_rgb(0_0_0/0.18)]",
+                                                            "ring-4 ring-ink ring-offset-2 ring-offset-cream": chosen) %>
+          <span class="<%= chosen ? "font-bold" : "" %>"><%= flavor.name %></span>
+        <% end %>
+      </li>
+    <% end %>
+    <% if @flavor %>
+      <li class="shrink-0 self-center">
+        <%= link_to "All flavors", flavor_filter_path(nil), class: "rounded-full border border-ink px-3 py-1.5 text-xs font-semibold hover:bg-ink hover:text-white" %>
+      </li>
+    <% end %>
+  </ul>
+</nav>

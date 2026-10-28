@@ -3,7 +3,7 @@
   <div class="flex items-start justify-between gap-3">
     <div class="min-w-0">
       <h3 class="font-display text-lg font-bold leading-tight">
-        <%= link_to store.name, finder_store_path(store), class: "hover:text-teal-dark" %>
+        <%= link_to store.name, finder_store_path(store, flavor: @flavor&.slug), class: "hover:text-teal-dark" %>
       </h3>
       <p class="mt-1 text-sm text-muted"><%= store.address_line %><br><%= store.place_line %></p>
     </div>
@@ -13,13 +13,22 @@
   </div>
   <% if store.flavors.any? %>
     <ul class="mt-3 flex flex-wrap gap-1.5" aria-label="Flavors this store stocks">
-      <% store.flavors.each do |flavor| %>
-        <li class="rounded-full border border-line px-2.5 py-0.5 text-xs"><%= flavor %></li>
+      <% store.sorted_flavors.each do |name| %>
+        <%= flavor_pill name, chosen: @flavor&.name == name %>
       <% end %>
     </ul>
+  <% else %>
+    <p class="mt-3 text-xs text-muted">Call ahead: we don't know which flavors they stock.</p>
   <% end %>
-  <div class="mt-4 flex gap-2">
-    <a href="<%= store.directions_url %>" target="_blank" rel="noopener" class="flex-1 rounded-full bg-ink px-4 py-2 text-center text-sm font-semibold text-white hover:bg-teal-dark sm:flex-none">Directions</a>
-    <%= link_to "Store details", finder_store_path(store), class: "flex-1 rounded-full border border-ink px-4 py-2 text-center text-sm font-semibold hover:bg-ink hover:text-white sm:flex-none" %>
+  <% links = store.chain_links %>
+  <% buy = links.assoc(@flavor&.name) || (links.one? ? links.first : nil) %>
+  <div class="mt-4 flex flex-wrap gap-2">
+    <a href="<%= store.directions_url %>" target="_blank" rel="noopener" class="flex-1 whitespace-nowrap rounded-full bg-ink px-4 py-2 text-center text-sm font-semibold text-white hover:bg-teal-dark sm:flex-none">Directions</a>
+    <%= link_to "Store details", finder_store_path(store, flavor: @flavor&.slug), class: "flex-1 whitespace-nowrap rounded-full border border-ink px-4 py-2 text-center text-sm font-semibold hover:bg-ink hover:text-white sm:flex-none" %>
+    <% if buy %>
+      <a href="<%= buy.last %>" target="_blank" rel="noopener" class="flex-1 whitespace-nowrap rounded-full bg-halo px-4 py-2 text-center text-sm font-semibold text-ink hover:bg-[#e0c510] sm:flex-none">Buy <%= buy.first if @flavor || links.one? %> at <%= Flavor.chain_label(store.chain) %></a>
+    <% elsif links.any? %>
+      <%= link_to "Buy at #{Flavor.chain_label(store.chain)}", finder_store_path(store, flavor: @flavor&.slug, anchor: "buy"), class: "flex-1 whitespace-nowrap rounded-full bg-halo px-4 py-2 text-center text-sm font-semibold text-ink hover:bg-[#e0c510] sm:flex-none" %>
+    <% end %>
   </div>
 </li>

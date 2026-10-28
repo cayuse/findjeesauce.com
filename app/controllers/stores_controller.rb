@@ -1,5 +1,9 @@
 class StoresController < ApplicationController
   WIDER_RADIUS_MILES = 250
+  # How far "the nearest store with this flavor" may be before we stop
+  # offering the drive and only offer the order online.
+  NEAREST_CARRIER_MILES = 150
+  STATE_ORDER = { carries: 0, unknown: 1, doesnt: 2 }.freeze
 
   def index
     @query = params[:q].to_s.strip.first(100)
@@ -21,16 +25,35 @@ class StoresController < ApplicationController
     end
     @store_count = Store.count
     @state_count = Store.distinct.count(:state)
+    pick_flavor
   end
 
   def show
+    @flavor = Flavor.find(params[:flavor])
     @store = Store.find_by_param!(params[:id])
-    return redirect_to(finder_store_path(@store), status: :moved_permanently) if params[:id] != @store.to_param
+    return redirect_to(finder_store_path(@store, flavor: @flavor&.slug), status: :moved_permanently) if params[:id] != @store.to_param
 
     @nearby = @store.located? ? Store.near(@store.lat, @store.lng, within: 25, limit: 7).where.not(id: @store.id).to_a : []
   end
 
   private
+
+  # ?flavor=dilly-dilly: carriers first (then unknowns, then the rest, each
+  # still nearest-first), a count for the notice, and, when nothing in the
+  # results has it, the nearest store that does.
+  def pick_flavor
+    @flavor = Flavor.find(params[:flavor])
+    return unless @flavor
+
+    @flavor_store_count = Store.carrying(@flavor).count
+    return unless @searched
+
+    @stores = @stores.each_with_index.sort_by { |s, i| [ STATE_ORDER[s.flavor_state(@flavor)], i ] }.map(&:first)
+    @carrier_count = @stores.count { |s| s.flavor_state(@flavor) == :carries }
+    if @carrier_count.zero? && @lat && @flavor_store_count.positive?
+      @nearest_carrier = Store.near(@lat, @lng, within: NEAREST_CARRIER_MILES, limit: 1).carrying(@flavor).first
+    end
+  end
 
   def coordinate(value, max)
     f = Float(value, exception: false)

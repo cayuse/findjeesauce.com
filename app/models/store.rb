@@ -20,6 +20,7 @@ class Store < ApplicationRecord
   }.freeze
 
   scope :located, -> { where.not(lat: nil).where.not(lng: nil) }
+  scope :carrying, ->(flavor) { where("? = ANY(stores.flavors)", flavor.name) }
 
   # Nearest stores to a point, each with a `distance` in miles.
   def self.near(lat, lng, within: DEFAULT_RADIUS_MILES, limit: NEAR_LIMIT)
@@ -71,6 +72,20 @@ class Store < ApplicationRecord
   def to_param = [ rep_id, name, city, state ].compact.join(" ").parameterize
 
   def self.find_by_param!(param) = find_by!(rep_id: param.to_s[/\A\d+/])
+
+  # Three states, never two: a store with no flavor list is unknown (rep
+  # doesn't know what's on its shelf), not a store that carries nothing.
+  def flavor_state(flavor)
+    return :unknown if flavors.empty?
+
+    flavors.include?(flavor.name) ? :carries : :doesnt
+  end
+
+  def sorted_flavors = Flavor.sort_names(flavors)
+
+  # [flavor name, URL] for each flavor this store carries that its chain sells
+  # on its own site ("Buy at H-E-B").
+  def chain_links = sorted_flavors.filter_map { |name| (url = Flavor.chain_link(chain, name)) && [ name, url ] }
 
   def located? = lat.present? && lng.present?
   def address_line = [ street, street2 ].compact_blank.join(", ")
