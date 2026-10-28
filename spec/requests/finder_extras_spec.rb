@@ -188,6 +188,14 @@ RSpec.describe "Sharing by channel" do
     expect(ShareOpen.pluck(:channel)).to eq(%w[whatsapp unknown])
   end
 
+  it "offers X, Facebook, a copyable post and the picture / video card, with no ingredient claims" do
+    get store_path(store)
+    expect(response.body).to include("https://x.com/intent/post?", "facebook.com/sharer/sharer.php?u=", "Copy post",
+                                     "Make a picture", "Make a video", "See if there&#39;s a store stocking this creamy almond hummus",
+                                     "og-card", "summary_large_image")
+    expect(response.body).not_to include("no beans", "No beans")
+  end
+
   it "counts a WhatsApp share" do
     post store_shares_path(store), params: { channel: "whatsapp" }
     expect(Share.last.channel).to eq("whatsapp")

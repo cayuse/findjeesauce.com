@@ -8,7 +8,10 @@
   <meta property="og:title" content="JeeSauce at <%= @store.name %>">
   <meta property="og:description" content="Whipped almond hummus on the shelf at <%= [@store.address_line, @store.place_line].compact_blank.join(', ') %>.">
   <meta property="og:url" content="<%= store_url(@store) %>">
-  <meta property="og:image" content="<%= image_url("jeesauce-logo.png") %>">
+  <meta property="og:image" content="<%= image_url("og-card.png") %>">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
 <% end %>
 
 <div class="mx-auto max-w-6xl px-4 pt-6 sm:px-6" data-store="<%= @store.rep_id %>">

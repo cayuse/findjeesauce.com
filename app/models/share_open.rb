@@ -1,6 +1,6 @@
 # A friend opened a shared link ("love landed"). See the migration.
 class ShareOpen < ApplicationRecord
-  CHANNELS = %w[text email whatsapp link sheet].freeze
+  CHANNELS = %w[text email whatsapp link sheet x facebook].freeze
 
   def self.log(store:, via:, user_agent:)
     return if user_agent.blank? || user_agent.match?(Search::BOT)

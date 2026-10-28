@@ -6,8 +6,13 @@
     mail or see who it went to. compact: the store-card size. %>
 <% compact = local_assigns[:compact] %>
 <% button = "flex-1 rounded-full border border-ink bg-white px-3 py-1.5 text-center text-xs font-semibold whitespace-nowrap hover:bg-ink hover:text-white" %>
+<% post = share_message(store, "post") %>
+<% lids = (store.sorted_flavors.filter_map { Flavor.named(_1) }.presence || Flavor.all).map { image_path(_1.lid) } %>
 <details class="<%= class_names("group", compact ? "w-full" : "mt-6 max-w-md") %>"
-         data-controller="share"
+         data-controller="share share-card" data-action="share-card:shared->share#counted"
+         data-share-card-name-value="<%= store.name %>" data-share-card-address-value="<%= [ store.address_line, store.place_line ].compact_blank.join(", ") %>"
+         data-share-card-lids-value="<%= lids.to_json %>" data-share-card-logo-value="<%= image_path("jeesauce-logo.png") %>"
+         data-share-card-caption-value="<%= post %>" data-share-card-file-name-value="jeesauce-<%= store.to_param.first(60) %>"
          data-share-url-value="<%= share_url(store, "sheet") %>" data-share-text-value="<%= share_message(store, "sheet") %>"
          data-share-title-value="JeeSauce at <%= store.name %>" data-share-record-url-value="<%= store_shares_path(store) %>">
   <summary class="<%= class_names("inline-flex cursor-pointer list-none items-center gap-2 rounded-full font-semibold select-none [&::-webkit-details-marker]:hidden",
@@ -23,6 +28,23 @@
       <a href="sms:?&body=<%= ERB::Util.url_encode(share_message(store, "text")) %>" data-action="share#record" data-share-channel-param="text" class="<%= button %>">Text it</a>
       <a href="https://wa.me/?text=<%= ERB::Util.url_encode(share_message(store, "whatsapp")) %>" target="_blank" rel="noopener" data-action="share#record" data-share-channel-param="whatsapp" class="<%= button %>">WhatsApp</a>
       <a href="mailto:?subject=<%= ERB::Util.url_encode("I found JeeSauce near you") %>&body=<%= ERB::Util.url_encode(share_message(store, "email")) %>" data-action="share#record" data-share-channel-param="email" class="<%= button %>">Email it</a>
+    </div>
+    <div class="mt-2 flex gap-2">
+      <a href="https://x.com/intent/post?<%= { text: share_message(store, "x"), url: share_url(store, "x") }.to_query %>" target="_blank" rel="noopener"
+         data-action="share#record" data-share-channel-param="x" class="<%= button %>">Post on X</a>
+      <a href="https://www.facebook.com/sharer/sharer.php?<%= { u: share_url(store, "facebook") }.to_query %>" target="_blank" rel="noopener"
+         data-action="share#record" data-share-channel-param="facebook" class="<%= button %>">Facebook</a>
+      <button type="button" data-action="share#caption" data-share-target="captionButton" data-share-caption-param="<%= post %>" class="<%= button %>">Copy post</button>
+    </div>
+    <div class="mt-3 rounded-xl bg-white p-3">
+      <p class="text-xs font-semibold">For Instagram, TikTok and stories</p>
+      <div class="mt-2 flex gap-2">
+        <button type="button" data-action="share-card#picture" class="<%= button %>">📸 Make a picture</button>
+        <button type="button" data-action="share-card#video" data-share-card-target="video" class="<%= button %>">🎬 Make a video</button>
+      </div>
+      <p hidden class="mt-2 text-xs text-muted" role="status" data-share-card-target="status"></p>
+      <div data-share-card-target="preview"></div>
+      <div data-share-card-target="actions"></div>
     </div>
     <% link = share_url(store, "link") %>
     <div class="mt-2 flex gap-2">

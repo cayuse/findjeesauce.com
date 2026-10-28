@@ -40,6 +40,12 @@ module ApplicationHelper
         "Here's the store and directions: #{url}\n"
     when "whatsapp" then "Found JeeSauce whipped almond hummus at #{store.name}, #{where} 🙌 #{url}"
     when "sheet" then "JeeSauce whipped almond hummus is at #{store.name}, #{where}."
+    # Social posts. No health or ingredient claims here (owner, 2026-10-28):
+    # only what the store is and where. X gets the store link separately.
+    when "post"
+      "Hey y'all! I found JeeSauce Whipped Almond Hummus at #{store.name}, #{where} 🙌 " \
+        "See if there's a store stocking this creamy almond hummus near you at findjeesauce.com #JeeSauce"
+    when "x" then "Hey y'all! I found JeeSauce Whipped Almond Hummus at #{store.name}, #{where} 🙌 #JeeSauce"
     else "JeeSauce is at #{store.name}, #{where} 🙌 #{url}"
     end
   end

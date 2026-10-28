@@ -73,8 +73,9 @@
       <table class="mt-3 w-full text-left text-sm">
         <thead class="text-xs text-muted uppercase"><tr><th class="py-1">Channel</th><th>Sent</th><th>Opened</th></tr></thead>
         <tbody>
-          <% { "text" => "text", "email" => "email", "whatsapp" => "whatsapp", "copy" => "link", "native" => "sheet" }.each do |sent, opened| %>
-            <tr class="border-t border-line"><td class="py-1.5"><%= { "copy" => "copied link", "native" => "phone share sheet" }.fetch(sent, sent) %></td><td class="tabular-nums"><%= @share_channels[sent].to_i %></td><td class="tabular-nums"><%= @open_channels[opened].to_i %></td></tr>
+          <% { "text" => "text", "email" => "email", "whatsapp" => "whatsapp", "copy" => "link", "native" => "sheet", "x" => "x",
+               "facebook" => "facebook", "caption" => nil, "picture" => nil, "video" => nil }.each do |sent, opened| %>
+            <tr class="border-t border-line"><td class="py-1.5"><%= { "copy" => "copied link", "native" => "phone share sheet", "caption" => "copied post", "picture" => "picture card", "video" => "video card" }.fetch(sent, sent) %></td><td class="tabular-nums"><%= @share_channels[sent].to_i %></td><td class="tabular-nums"><%= opened ? @open_channels[opened].to_i : "–" %></td></tr>
           <% end %>
         </tbody>
       </table>
