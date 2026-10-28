@@ -162,6 +162,6 @@ export default class extends Controller {
     box.append(go)
 
     this.info.setContent(box)
-    this.info.open({ map, anchor: marker })
+    this.info.open({ map, anchor: marker, shouldFocus: false }) // no focus ring boxing the name on a tap
   }
 }
