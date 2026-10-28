@@ -98,6 +98,9 @@ exists with any grocery chain until one is found. Two rules if we do it:
 - **Never let the fee choose the order.** The nearest store that carries it
   comes first, whoever pays.
 
+Study (2026-10-27): docs/AFFILIATE_STUDY.md. Links yes; brand affiliate income
+mostly no. Owner: we don't need to name the store, only that they can get it.
+
 Owner calls before building: which apps; whether affiliate links are wanted
 on day one or later; who holds the affiliate accounts (a person at JeeSauce,
 not the code).
