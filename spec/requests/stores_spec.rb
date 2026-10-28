@@ -169,3 +169,36 @@ RSpec.describe "Delivery links" do
     expect(response.body).to include("971387138")
   end
 end
+
+RSpec.describe "Spread the love" do
+  let!(:store) { Store.create!(rep_id: 40, name: "Austin H-E-B", chain: "H-E-B", city: "Austin", state: "TX", zip: "78701", lat: 30.27, lng: -97.74, flavors: [ "Original" ]) }
+
+  it "offers to send a store to a friend, on the card and the store page" do
+    get root_path, params: { q: "78701" }
+    expect(response.body).to include("Share this store", "JeeSauce love spread")
+    get store_path(store)
+    expect(response.body).to include("Send this store to a friend", "Copy link", "mailto:?subject=", "sms:?&body=")
+    expect(response.body).to include(store_url(store, shared: 1))
+  end
+
+  it "counts a share and answers with the totals" do
+    Share.create!(store_rep_id: 99, channel: "copy")
+    post store_shares_path(store), params: { channel: "email" }
+    expect(response.parsed_body).to eq("count" => 2, "store_count" => 1)
+    expect(Share.last).to have_attributes(store_rep_id: 40, channel: "email")
+  end
+
+  it "refuses an unknown channel" do
+    post store_shares_path(store), params: { channel: "carrier-pigeon" }
+    expect(response).to have_http_status(:unprocessable_content)
+    expect(Share.count).to eq(0)
+  end
+
+  it "greets a friend who followed a shared link" do
+    get store_path(store, shared: 1)
+    expect(response.body).to include("A friend sent you this store")
+    expect(response.body).to include(%(rel="canonical" href="#{store_url(store)}"))
+    get store_path(store)
+    expect(response.body).not_to include("A friend sent you this store")
+  end
+end

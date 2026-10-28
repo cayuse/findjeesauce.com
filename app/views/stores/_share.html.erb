@@ -1,0 +1,36 @@
+<%# "Send this store to a friend". A <details>, so it opens without
+    JavaScript and Text / Email still work; JavaScript adds copy, the phone's
+    share sheet and the counter. Email and text open the shopper's own app:
+    we never send mail or see who it went to. compact: the store-card size. %>
+<% url = share_url(store) %>
+<% text = share_text(store) %>
+<% compact = local_assigns[:compact] %>
+<details class="<%= class_names("group", compact ? "w-full" : "mt-6 max-w-md") %>"
+         data-controller="share"
+         data-share-url-value="<%= url %>" data-share-text-value="<%= text %>" data-share-title-value="JeeSauce at <%= store.name %>"
+         data-share-record-url-value="<%= store_shares_path(store) %>">
+  <summary class="<%= class_names("inline-flex cursor-pointer list-none items-center gap-2 rounded-full font-semibold select-none [&::-webkit-details-marker]:hidden",
+                                  compact ? "text-sm text-teal-dark hover:text-ink" : "border-2 border-ink bg-white px-5 py-2.5 hover:bg-cream") %>">
+    <span aria-hidden="true" class="text-[#e0245e] transition group-open:scale-125">♥</span>
+    <%= compact ? "Share this store" : "Send this store to a friend" %>
+  </summary>
+  <div class="mt-3 rounded-2xl border border-line bg-cream p-3">
+    <p class="text-sm">Spread the love: tell a friend where to find JeeSauce.</p>
+    <button type="button" hidden data-share-target="native" data-action="share#native"
+            class="mt-3 w-full rounded-full bg-ink px-4 py-2 text-sm font-semibold text-white hover:bg-teal-dark">Share…</button>
+    <div class="mt-3 flex gap-2">
+      <label class="sr-only" for="share-<%= store.id %>-<%= compact ? "c" : "p" %>">Link to this store</label>
+      <input id="share-<%= store.id %>-<%= compact ? "c" : "p" %>" type="text" readonly value="<%= url %>" data-share-target="link" data-action="focus->share#select"
+             class="min-w-0 flex-1 rounded-full border border-line bg-white px-3 py-1.5 text-xs text-muted">
+      <button type="button" data-action="share#copy" data-share-target="copy"
+              class="shrink-0 rounded-full border border-ink bg-white px-3 py-1.5 text-xs font-semibold hover:bg-ink hover:text-white">Copy link</button>
+    </div>
+    <div class="mt-2 flex gap-2">
+      <a href="sms:?&body=<%= ERB::Util.url_encode("#{text} #{url}") %>" data-action="share#record" data-share-channel-param="text"
+         class="flex-1 rounded-full border border-ink bg-white px-3 py-1.5 text-center text-xs font-semibold hover:bg-ink hover:text-white">Text it</a>
+      <a href="mailto:?subject=<%= ERB::Util.url_encode("I found JeeSauce near you") %>&body=<%= ERB::Util.url_encode("#{text}\n\n#{url}") %>" data-action="share#record" data-share-channel-param="email"
+         class="flex-1 rounded-full border border-ink bg-white px-3 py-1.5 text-center text-xs font-semibold hover:bg-ink hover:text-white">Email it</a>
+    </div>
+    <p class="mt-2 hidden text-xs font-semibold text-teal-dark" role="status" data-share-target="thanks"></p>
+  </div>
+</details>

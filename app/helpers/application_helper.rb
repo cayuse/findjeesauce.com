@@ -19,4 +19,16 @@ module ApplicationHelper
       safe_join([ (lid_icon(flavor, size: 20) if flavor), name ].compact)
     end
   end
+
+  # "Spread the love": every share, every store.
+  def love_count = @love_count ||= Share.count
+
+  # The link a share sends: the store's own page on the full site (not the
+  # jeesauce.com frame), marked so it greets the friend.
+  def share_url(store) = store_url(store, shared: 1)
+
+  def share_text(store)
+    where = [ store.address_line, store.place_line ].compact_blank.join(", ")
+    "Found JeeSauce whipped almond hummus at #{store.name}, #{where}. Here's where:"
+  end
 end

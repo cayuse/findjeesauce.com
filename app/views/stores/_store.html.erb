@@ -31,4 +31,5 @@
       <%= link_to "Buy at #{Flavor.chain_label(store.shop_chain)}", finder_store_path(store, flavor: @flavor&.slug, anchor: "buy"), class: "flex-1 whitespace-nowrap rounded-full bg-halo px-4 py-2 text-center text-sm font-semibold text-ink hover:bg-[#e0c510] sm:flex-none" %>
     <% end %>
   </div>
+  <div class="mt-3 border-t border-line pt-3"><%= render "stores/share", store: store, compact: true %></div>
 </li>

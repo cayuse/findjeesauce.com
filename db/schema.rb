@@ -10,9 +10,16 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_27_220000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_28_180000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "shares", force: :cascade do |t|
+    t.bigint "store_rep_id", null: false
+    t.string "channel", null: false
+    t.datetime "created_at", null: false
+    t.index ["store_rep_id"], name: "index_shares_on_store_rep_id"
+  end
 
   create_table "stores", force: :cascade do |t|
     t.bigint "rep_id", null: false

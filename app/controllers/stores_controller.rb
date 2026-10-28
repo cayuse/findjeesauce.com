@@ -31,7 +31,8 @@ class StoresController < ApplicationController
   def show
     @flavor = Flavor.find(params[:flavor])
     @store = Store.find_by_param!(params[:id])
-    return redirect_to(finder_store_path(@store, flavor: @flavor&.slug), status: :moved_permanently) if params[:id] != @store.to_param
+    @shared = params[:shared] == "1"
+    return redirect_to(finder_store_path(@store, flavor: @flavor&.slug, shared: (1 if @shared)), status: :moved_permanently) if params[:id] != @store.to_param
 
     @nearby = @store.located? ? Store.near(@store.lat, @store.lng, within: 25, limit: 7).where.not(id: @store.id).to_a : []
   end

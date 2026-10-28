@@ -3,7 +3,10 @@ Rails.application.routes.draw do
   get "up" => "rails/health#show", as: :rails_health_check
 
   root "stores#index"
-  resources :stores, only: :show
+  resources :stores, only: :show do
+    # The "Spread the love" counter: one per press of a share button.
+    resources :shares, only: :create
+  end
 
   # The same finder without our header and footer, for jeesauce.com to frame
   # (its store-locator page). Only jeesauce.com and Shopify's previews may

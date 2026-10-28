@@ -1,8 +1,25 @@
 <% content_for :title, "#{@store.name}, #{@store.place_line}" %>
 <% content_for :description, "#{@store.name} at #{[@store.address_line, @store.place_line].compact_blank.join(', ')} carries JeeSauce whipped almond hummus#{": #{@store.flavors.to_sentence}" if @store.flavors.any?}." %>
+<% content_for :head do %>
+  <%# One address for search engines whatever the ?flavor / ?shared; and a
+      preview card when the link is texted or posted. %>
+  <link rel="canonical" href="<%= store_url(@store) %>">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="JeeSauce at <%= @store.name %>">
+  <meta property="og:description" content="Whipped almond hummus on the shelf at <%= [@store.address_line, @store.place_line].compact_blank.join(', ') %>.">
+  <meta property="og:url" content="<%= store_url(@store) %>">
+  <meta property="og:image" content="<%= image_url("jeesauce-logo.png") %>">
+<% end %>
 
 <div class="mx-auto max-w-6xl px-4 pt-6 sm:px-6">
   <%= link_to "← All stores", finder_root_path, class: "text-sm text-muted hover:text-ink" %>
+
+  <% if @shared %>
+    <div class="mt-4 flex items-center gap-3 rounded-2xl bg-halo p-4" role="status">
+      <span class="text-2xl" aria-hidden="true">♥</span>
+      <p><strong class="font-display">A friend sent you this store.</strong> They think you'll love JeeSauce, and here's where to find it.</p>
+    </div>
+  <% end %>
 
   <div class="mt-4 grid gap-6 lg:grid-cols-2">
     <div>
@@ -12,6 +29,8 @@
       <h1 class="mt-1 font-display text-3xl leading-tight font-extrabold tracking-tight sm:text-4xl"><%= @store.name %></h1>
       <address class="mt-3 text-lg not-italic"><%= @store.address_line %><br><%= @store.place_line %></address>
       <a href="<%= @store.directions_url %>" target="_blank" rel="noopener" class="mt-5 inline-block rounded-full bg-ink px-6 py-3 font-semibold text-white hover:bg-teal-dark">Get directions</a>
+      <%= render "stores/share", store: @store %>
+      <%= render "stores/love_counter", class: "mt-4" %>
 
       <h2 id="buy" class="mt-8 scroll-mt-4 font-display text-xl font-bold">Flavors on this shelf</h2>
       <% if @store.flavors.any? %>

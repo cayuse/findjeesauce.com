@@ -1,0 +1,9 @@
+<%# The running total of shares, like a "billions served" sign. Every
+    [data-love-count] on the page ticks up when someone shares. %>
+<div class="<%= class_names("inline-flex items-center gap-3 rounded-2xl bg-ink py-2 pr-5 pl-3 text-white shadow-sm", local_assigns[:class]) %>">
+  <span class="grid size-9 place-items-center rounded-full bg-halo text-lg text-ink" aria-hidden="true">♥</span>
+  <span class="leading-tight">
+    <span class="block text-[0.65rem] font-semibold tracking-widest text-white/70 uppercase">JeeSauce love spread</span>
+    <span class="font-display text-xl font-extrabold tabular-nums"><span class="inline-block" data-love-count><%= number_with_delimiter(love_count) %></span> <span class="text-sm font-semibold text-white/80">times</span></span>
+  </span>
+</div>
