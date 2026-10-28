@@ -30,6 +30,7 @@ export default class extends Controller {
   }
 
   submit(event) {
+    if (!this.hasPhotoTarget) return // photos are switched off (Sighting.photos?)
     const hasPhoto = this.photoTarget.files.length > 0
     if (hasPhoto && !this.okTarget.checked) {
       event.preventDefault()
@@ -45,6 +46,7 @@ export default class extends Controller {
   }
 
   say(text) {
+    if (!this.hasMessageTarget) return
     this.messageTarget.textContent = text
     this.messageTarget.hidden = !text
   }

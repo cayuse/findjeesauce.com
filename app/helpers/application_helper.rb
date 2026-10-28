@@ -24,22 +24,45 @@ module ApplicationHelper
   def love_count = @love_count ||= Share.count
 
   # The link a share sends: the store's own page on the full site (not the
-  # jeesauce.com frame), marked so it greets the friend.
-  def share_url(store) = store_url(store, shared: 1)
+  # jeesauce.com frame), marked so it greets the friend. via: how it was sent
+  # (text, email, whatsapp, link, sheet), so an open can be counted by channel.
+  def share_url(store, via) = store_url(store, shared: 1, via:)
 
-  def share_text(store)
+  # The message each channel sends, written for it: short for texts, a
+  # greeting and the flavors for email.
+  def share_message(store, via)
     where = [ store.address_line, store.place_line ].compact_blank.join(", ")
-    "Found JeeSauce whipped almond hummus at #{store.name}, #{where}. Here's where:"
+    url = share_url(store, via)
+    case via
+    when "email"
+      flavors = " (#{store.sorted_flavors.to_sentence})" if store.flavors.any?
+      "Hi!\n\nYou have to try JeeSauce whipped almond hummus. #{store.name} carries it#{flavors}:\n#{where}\n\n" \
+        "Here's the store and directions: #{url}\n"
+    when "whatsapp" then "Found JeeSauce whipped almond hummus at #{store.name}, #{where} 🙌 #{url}"
+    when "sheet" then "JeeSauce whipped almond hummus is at #{store.name}, #{where}."
+    else "JeeSauce is at #{store.name}, #{where} 🙌 #{url}"
+    end
   end
 
-  # "Delivered Oct 2026 · Spotted by a shopper 3 days ago": what we know about
-  # the shelf, and how old it is. Never "in stock". @spotted: rep_id => time.
+  # "In stock: November · Spotted by a shopper 3 days ago". Never a date that
+  # ages ("delivered 8/28"): rep's yes/no shelf signal shown as this month,
+  # and how long ago a shopper saw it. @spotted: rep_id => time.
   def freshness_line(store)
     parts = []
-    parts << "Delivered #{store.last_delivered_on.strftime('%b %Y')}" if store.last_delivered_on
+    parts << "In stock: #{Time.current.in_time_zone('America/Chicago').strftime('%B')}" if store.stocked_recently
     if (seen = @spotted&.dig(store.rep_id))
       parts << "Spotted by a shopper #{seen > 1.day.ago ? 'today' : "#{time_ago_in_words(seen)} ago"}"
     end
     parts.join(" · ").presence
+  end
+
+  def fresh_dot = tag.span(class: "mr-1 inline-block size-2 rounded-full bg-[#1f9d55] align-middle", aria: { hidden: true })
+
+  # A jeesauce.com link tagged for Shopify's reports: which orders came from
+  # the finder, and from which spot on it. The chosen flavor's product page
+  # when there is one.
+  def dtc_url(flavor = nil, spot:)
+    base = flavor&.shop_url || "https://jeesauce.com"
+    "#{base}?#{{ utm_source: 'findjeesauce', utm_medium: 'store_finder', utm_campaign: 'find_jeesauce', utm_content: spot }.to_query}"
   end
 end

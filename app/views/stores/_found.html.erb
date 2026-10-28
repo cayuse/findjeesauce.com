@@ -14,8 +14,8 @@
     <p class="mb-3 rounded-xl bg-cream p-3 text-sm" role="status">Thanks, that's plenty for now. Try again in a little while.</p>
   <% end %>
   <h2 class="font-display text-xl font-bold">Seen it here?</h2>
-  <p class="mt-1 text-sm text-muted">Tell the next shopper it's really on the shelf. Snap a photo if you like.</p>
-  <%= form_with url: store_sightings_path(@store), method: :post, multipart: true, local: true,
+  <p class="mt-1 text-sm text-muted">Tell the next shopper it's really on the shelf<%= ". Snap a photo if you like" if Sighting.photos? %>.</p>
+  <%= form_with url: store_sightings_path(@store), method: :post, multipart: Sighting.photos?, local: true,
         data: { controller: "found", action: "submit->found#submit" }, class: "mt-3" do %>
     <%= hidden_field_tag :embed, "1", id: nil if embed? %>
     <fieldset>
@@ -31,6 +31,7 @@
         <% end %>
       </div>
     </fieldset>
+    <% if Sighting.photos? %>
     <label class="mt-3 block text-sm">
       <span class="font-semibold">Photo</span> <span class="text-muted">(optional)</span>
       <input type="file" name="photo" accept="image/*" data-found-target="photo" data-action="change->found#picked"
@@ -41,6 +42,7 @@
       <input type="checkbox" name="photo_ok" value="1" data-found-target="ok" class="mt-0.5">
       <span>JeeSauce may show my photo here and on its social pages. It's my photo, and no one's face is in it.</span>
     </label>
+    <% end %>
     <p hidden class="mt-2 text-xs text-red-700" data-found-target="message"></p>
     <button type="submit" data-found-target="submit" class="mt-3 rounded-full bg-ink px-5 py-2.5 font-semibold text-white hover:bg-teal-dark">I found it here! 🎉</button>
   <% end %>

@@ -1,7 +1,7 @@
 <%# What the chosen flavor means for this search. A store with no flavor list
     is never counted as having it, and never as proof it's online only. %>
 <% name = @flavor.name %>
-<% order = link_to "Order #{name} online", @flavor.shop_url, class: "inline-block rounded-full bg-ink px-4 py-2 text-sm font-semibold text-white hover:bg-teal-dark" %>
+<% order = link_to "Order #{name} online", dtc_url(@flavor, spot: "flavor-notice"), class: "inline-block rounded-full bg-ink px-4 py-2 text-sm font-semibold text-white hover:bg-teal-dark" %>
 <div class="mb-5 flex items-start gap-3 rounded-2xl bg-white p-4 shadow-sm" role="status">
   <%= lid_icon @flavor, size: 44 %>
   <div class="min-w-0 flex-1">
@@ -16,7 +16,7 @@
     <% elsif @carrier_count.positive? %>
       <% where = @lat ? "near you" : "matching “#{@query}”" %>
       <p class="font-display text-lg font-bold"><%= pluralize(@carrier_count, "store") %> <%= where %> <%= @carrier_count == 1 ? "carries" : "carry" %> <%= name %>.</p>
-      <p class="mt-1 text-sm text-muted">They're listed first. Or <%= link_to "order it online", @flavor.shop_url, class: "underline underline-offset-2" %>.</p>
+      <p class="mt-1 text-sm text-muted">They're listed first. Or <%= link_to "order it online", dtc_url(@flavor, spot: "flavor-notice"), class: "underline underline-offset-2" %>.</p>
     <% else %>
       <p class="font-display text-lg font-bold"><%= name %> isn't on a shelf near you yet.</p>
       <% if @nearest_carrier %>

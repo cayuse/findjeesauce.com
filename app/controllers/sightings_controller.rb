@@ -10,7 +10,7 @@ class SightingsController < ApplicationController
   def create
     store = Store.find_by_param!(params[:store_id])
     sighting = Sighting.new(store_rep_id: store.rep_id, flavor: Flavor.find(params[:flavor])&.name)
-    sighting.photo_upload = params[:photo] if params[:photo_ok] == "1"
+    sighting.photo_upload = params[:photo] if Sighting.photos? && params[:photo_ok] == "1"
     found = if sighting.save then sighting.photo_status == "pending" ? "photo" : "1"
     else "bad"
     end

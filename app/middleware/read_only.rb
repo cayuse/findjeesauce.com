@@ -11,6 +11,7 @@
 # - /stores/:id/sightings  "I found it!": store, flavor, optional JPEG photo
 #                          (metadata stripped, hidden until approved).
 # - /asks                  "Ask your store": chain, flavor, coarse place.
+# - /clicks                buy-button clicks: where to, store, flavor.
 # - /admin/sightings/:id/(approve|reject)  photo approvals, behind Basic auth
 #                          and Rails' CSRF token.
 # Nothing a visitor types (no names, emails, messages) is kept anywhere.
@@ -20,6 +21,7 @@ class ReadOnly
     %r{\A/stores/[^/]+/shares\z},
     %r{\A/stores/[^/]+/sightings\z},
     %r{\A/asks\z},
+    %r{\A/clicks\z},
     %r{\A/admin/sightings/\d+/(approve|reject)\z}
   ].freeze
 

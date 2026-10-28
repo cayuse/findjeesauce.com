@@ -29,12 +29,17 @@ env:
     DATABASE_HOST: sauce-postgis
     DATABASE_PORT: "5432"
     SOLID_QUEUE_IN_PUMA: "true"
+    # Google sign-in on /admin: set to "1" once findjeesauce's two callback
+    # URLs are on rep's OAuth client (docs/FINDER_EXTRAS.md).
+    ADMIN_GOOGLE_SIGN_IN: "0"
   secret:
     - RAILS_MASTER_KEY
     - FINDJEESAUCE_DATABASE_PASSWORD
     - REP_API_TOKEN                   # rep token, client findjeesauce, scope stores:read
     - GOOGLE_MAPS_BROWSER_API_KEY     # our OWN key (not rep's), referrer-locked to our hosts
-    - ADMIN_PASSWORD                  # /admin, user "jee" (admin.env)
+    - ADMIN_PASSWORD                  # /admin, user "jee" (admin.env), until Google sign-in is on
+    - GOOGLE_OAUTH_CLIENT_ID          # rep's OAuth client (shared/google-oauth.env)
+    - GOOGLE_OAUTH_CLIENT_SECRET
 
 aliases:
   console: app exec --interactive --reuse "bin/rails console"

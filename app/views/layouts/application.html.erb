@@ -19,14 +19,14 @@
     <%= javascript_importmap_tags %>
   </head>
 
-  <body class="flex min-h-screen flex-col font-sans antialiased">
+  <body data-controller="track" data-track-url-value="<%= clicks_path %>" data-track-flavor-value="<%= params[:flavor].to_s.first(40) %>" class="flex min-h-screen flex-col font-sans antialiased">
     <header class="bg-white/90 border-b border-line">
       <div class="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-2 sm:px-6">
         <%= link_to root_path, class: "flex items-center gap-3", aria: { label: "Find JeeSauce home" } do %>
           <%= image_tag "jeesauce-logo.png", alt: "JeeSauce", class: "h-12 w-auto sm:h-14" %>
           <span class="font-display text-lg font-bold tracking-tight sm:text-xl">Find JeeSauce</span>
         <% end %>
-        <a href="https://jeesauce.com" class="rounded-full bg-ink px-4 py-2 text-sm font-semibold text-white hover:bg-teal-dark">Order online</a>
+        <a href="<%= dtc_url(spot: "header") %>" class="rounded-full bg-ink px-4 py-2 text-sm font-semibold text-white hover:bg-teal-dark">Order online</a>
       </div>
     </header>
 
@@ -36,7 +36,7 @@
 
     <footer class="mt-16 bg-ink text-white">
       <div class="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-8 text-sm sm:flex-row sm:items-center sm:justify-between sm:px-6">
-        <p>Can't find it nearby? Every flavor ships to your door from <a href="https://jeesauce.com" class="underline underline-offset-2">jeesauce.com</a>.</p>
+        <p>Can't find it nearby? Every flavor ships to your door from <a href="<%= dtc_url(spot: "footer") %>" class="underline underline-offset-2">jeesauce.com</a>.</p>
         <p class="text-white/60">© <%= Date.current.year %> JeeSauce</p>
       </div>
     </footer>

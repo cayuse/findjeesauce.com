@@ -37,7 +37,12 @@ class StoresController < ApplicationController
     @flavor = Flavor.find(params[:flavor])
     @store = Store.find_by_param!(params[:id])
     @shared = params[:shared] == "1"
-    return redirect_to(finder_store_path(@store, flavor: @flavor&.slug, shared: (1 if @shared)), status: :moved_permanently) if params[:id] != @store.to_param
+    if params[:id] != @store.to_param
+      return redirect_to(finder_store_path(@store, flavor: @flavor&.slug, shared: (1 if @shared), via: (params[:via] if @shared)), status: :moved_permanently)
+    end
+
+    ShareOpen.log(store: @store, via: params[:via], user_agent: request.user_agent) if @shared
+    @store_shares = Share.for_store(@store).count
 
     @nearby = @store.located? ? Store.near(@store.lat, @store.lng, within: 25, limit: 7).where.not(id: @store.id).to_a : []
     @spotted = Sighting.latest_for([ @store, *@nearby ])

@@ -14,7 +14,7 @@ export default class extends Controller {
   async native() {
     try {
       await navigator.share({ title: this.titleValue, text: this.textValue, url: this.urlValue })
-      this.count("native")
+      this.count("native") // the sheet doesn't say which app it went to
     } catch (error) {
       // Closed the sheet without sharing: nothing to count.
     }
@@ -22,7 +22,7 @@ export default class extends Controller {
 
   async copy() {
     try {
-      await navigator.clipboard.writeText(this.urlValue)
+      await navigator.clipboard.writeText(this.linkTarget.value)
     } catch (error) {
       // No clipboard (an old browser, or inside a frame): select it to copy by hand.
       this.select()
@@ -57,9 +57,10 @@ export default class extends Controller {
   celebrate(count) {
     this.thanksTarget.textContent = `Thanks for spreading the love! That's share #${count.toLocaleString()}.`
     this.thanksTarget.classList.remove("hidden")
+    const still = matchMedia("(prefers-reduced-motion: reduce)").matches
     document.querySelectorAll("[data-love-count]").forEach((el) => {
       el.textContent = count.toLocaleString()
-      el.animate?.([{ transform: "scale(1.4)", color: "#f2d826" }, { transform: "scale(1)" }], { duration: 600, easing: "ease-out" })
+      if (!still) el.animate?.([{ transform: "scale(1.4)", color: "#f2d826" }, { transform: "scale(1)" }], { duration: 600, easing: "ease-out" })
     })
   }
 }

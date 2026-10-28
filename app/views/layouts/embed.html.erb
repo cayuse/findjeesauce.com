@@ -15,7 +15,7 @@
   </head>
 
   <%# Transparent, so the finder sits on whatever page frames it. %>
-  <body class="embed font-sans antialiased" style="background: transparent">
+  <body data-controller="track" data-track-url-value="<%= clicks_path %>" data-track-flavor-value="<%= params[:flavor].to_s.first(40) %>" class="embed font-sans antialiased" style="background: transparent">
     <main class="pb-4">
       <%= yield %>
     </main>

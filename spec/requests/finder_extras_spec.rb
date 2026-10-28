@@ -40,6 +40,13 @@ RSpec.describe "Ask your store" do
 end
 
 RSpec.describe "I found it" do
+  around do |ex|
+    ENV["SIGHTING_PHOTOS"] = "1"
+    ex.run
+  ensure
+    ENV.delete("SIGHTING_PHOTOS")
+  end
+
   let!(:store) { Store.create!(rep_id: 52, name: "Austin H-E-B", chain: "H-E-B", city: "Austin", state: "TX", zip: "78701", lat: 30.27, lng: -97.74, flavors: [ "Original" ]) }
   let(:jpeg) do
     exif = "\xFF\xE1".b + [ 14 ].pack("n") + "Exif\0\0GPS123".b
@@ -77,11 +84,16 @@ RSpec.describe "I found it" do
 end
 
 RSpec.describe "Freshness" do
-  it "shows the last delivery when rep's feed has one" do
+  it "shows rep's shelf signal as this month, never a date" do
     store = Store.create!(rep_id: 53, name: "Boise Albertsons", city: "Boise", state: "ID", zip: "83702", lat: 43.6, lng: -116.2,
-                          flavors: [ "Original" ], last_delivered_on: Date.new(2026, 10, 9))
+                          flavors: [ "Original" ], stocked_recently: true)
+    travel_to Time.zone.parse("2026-11-03 12:00") do
+      get store_path(store)
+      expect(response.body).to include("In stock: November")
+    end
+    store.update!(stocked_recently: false)
     get store_path(store)
-    expect(response.body).to include("Delivered Oct 2026")
+    expect(response.body).not_to include("In stock:")
   end
 end
 
@@ -145,5 +157,115 @@ RSpec.describe LinkCheck do
     described_class.check!(url)
     Current.reset
     expect(Flavor.chain_link("H-E-B", "Original")).to eq(url)
+  end
+end
+
+RSpec.describe "Photos switched off" do
+  let!(:store) { Store.create!(rep_id: 54, name: "Austin H-E-B", chain: "H-E-B", city: "Austin", state: "TX", zip: "78701", lat: 30.27, lng: -97.74, flavors: [ "Original" ]) }
+
+  it "has no photo field and ignores a photo sent anyway" do
+    get store_path(store)
+    expect(response.body).not_to include('type="file"')
+    photo = Rack::Test::UploadedFile.new(StringIO.new("\xFF\xD8\xFF\xDA\x00\x02PIX\xFF\xD9".b), "image/jpeg", true, original_filename: "x.jpg")
+    post store_sightings_path(store), params: { photo:, photo_ok: "1" }
+    expect(Sighting.last).to have_attributes(photo_status: "none", photo: nil)
+  end
+end
+
+RSpec.describe "Sharing by channel" do
+  let!(:store) { Store.create!(rep_id: 55, name: "Austin H-E-B", chain: "H-E-B", city: "Austin", state: "TX", zip: "78701", lat: 30.27, lng: -97.74, flavors: [ "Original" ]) }
+
+  it "writes a message per channel, each link tagged with it" do
+    get store_path(store)
+    expect(response.body).to include("https://wa.me/?text=", "via%3Dwhatsapp", "via%3Dtext", "via%3Demail", "via=link")
+    expect(response.body).to include("You%20have%20to%20try") # the email greeting
+  end
+
+  it "counts a friend's open by channel, and not a robot's" do
+    get store_path(store, shared: 1, via: "whatsapp"), headers: BROWSER
+    get store_path(store, shared: 1, via: "nonsense"), headers: BROWSER
+    get store_path(store, shared: 1, via: "text"), headers: { "User-Agent" => "facebookexternalhit/1.1 preview" }
+    expect(ShareOpen.pluck(:channel)).to eq(%w[whatsapp unknown])
+  end
+
+  it "counts a WhatsApp share" do
+    post store_shares_path(store), params: { channel: "whatsapp" }
+    expect(Share.last.channel).to eq("whatsapp")
+  end
+
+  it "invites the first 100" do
+    get root_path
+    expect(response.body).to include("Be one of the first 100")
+  end
+end
+
+RSpec.describe "jeesauce.com first, and buy clicks" do
+  let!(:store) { Store.create!(rep_id: 56, name: "Austin H-E-B", chain: "H-E-B", city: "Austin", state: "TX", zip: "78701", lat: 30.27, lng: -97.74, flavors: [ "Original" ]) }
+
+  it "puts a tagged jeesauce.com tile on store pages" do
+    get store_path(store, flavor: "original")
+    expect(response.body).to include("Ships to your door from jeesauce.com",
+                                     "8oz-original-jee-sauce?utm_campaign=find_jeesauce&amp;utm_content=store-page-tile&amp;utm_medium=store_finder&amp;utm_source=findjeesauce")
+  end
+
+  it "counts a click by where it went, and nothing for a host we don't know" do
+    post clicks_path, params: { host: "www.heb.com", store: "56", flavor: "original" }
+    expect(Click.last).to have_attributes(kind: "chain", target: "H-E-B", store_rep_id: 56, flavor: "Original")
+    post clicks_path, params: { host: "jeesauce.com", spot: "finder-tile" }
+    expect(Click.last).to have_attributes(kind: "dtc", spot: "finder-tile")
+    post clicks_path, params: { host: "evil.example" }
+    expect(response).to have_http_status(:unprocessable_content)
+    expect(Click.count).to eq(2)
+  end
+end
+
+RSpec.describe "Google sign-in for the team pages" do
+  around do |ex|
+    env = { "ADMIN_GOOGLE_SIGN_IN" => "1", "GOOGLE_OAUTH_CLIENT_ID" => "cid", "GOOGLE_OAUTH_CLIENT_SECRET" => "sec", "ADMIN_PASSWORD" => "s3cret" }
+    old = env.keys.index_with { ENV[_1] }
+    env.each { ENV[_1] = _2 }
+    ex.run
+  ensure
+    old.each { |k, v| v ? ENV[k] = v : ENV.delete(k) }
+  end
+
+  def sign_in_as(email, verified: true, aud: "cid")
+    get admin_sign_in_path
+    query = Rack::Utils.parse_query(URI(response.location).query)
+    claims = { aud:, iss: "https://accounts.google.com", exp: 1.hour.from_now.to_i, nonce: query["nonce"], email:, email_verified: verified }
+    id_token = [ "h", Base64.urlsafe_encode64(claims.to_json, padding: false), "s" ].join(".")
+    stub_request(:post, "https://oauth2.googleapis.com/token").to_return(body: { id_token: }.to_json, headers: { "Content-Type" => "application/json" })
+    get google_callback_path, params: { code: "c", state: query["state"] }
+  end
+
+  it "sends you to Google, then lets the team in" do
+    get admin_root_path
+    expect(response).to redirect_to(admin_sign_in_path)
+    sign_in_as("Joel@JeeSauce.com")
+    expect(response).to redirect_to(admin_root_path)
+    follow_redirect!
+    expect(response.body).to include("Signed in as joel@jeesauce.com")
+  end
+
+  it "refuses anyone not on the list, an unverified email, or a token for another app" do
+    sign_in_as("someone@jeesauce.com")
+    expect(response).to have_http_status(:forbidden)
+    sign_in_as("dave@jeesauce.com", verified: false)
+    expect(response).to have_http_status(:forbidden)
+    sign_in_as("dave@jeesauce.com", aud: "other")
+    expect(response).to have_http_status(:forbidden)
+    get admin_root_path
+    expect(response).to redirect_to(admin_sign_in_path)
+  end
+
+  it "refuses a callback without the state it issued" do
+    get admin_sign_in_path
+    get google_callback_path, params: { code: "c", state: "forged" }
+    expect(response).to have_http_status(:forbidden)
+  end
+
+  it "no longer takes the password once Google is on" do
+    get admin_root_path, headers: { "HTTP_AUTHORIZATION" => ActionController::HttpAuthentication::Basic.encode_credentials("jee", "s3cret") }
+    expect(response).to redirect_to(admin_sign_in_path)
   end
 end

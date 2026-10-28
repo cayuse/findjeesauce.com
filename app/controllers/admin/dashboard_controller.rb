@@ -16,6 +16,12 @@ class Admin::DashboardController < Admin::BaseController
         @sightings = Sighting.fresh.count
         @shares = Share.count
         @links = LinkCheck.order(:result, :url)
+        @clicks = Click.recent(DAYS).group(:kind, :target).count.sort_by { -_2 }
+        @heb_clicks = Click.recent(DAYS).where(target: "H-E-B").where.not(store_rep_id: nil).group(:store_rep_id).count.sort_by { -_2 }.first(25)
+        @heb_stores = Store.where(rep_id: @heb_clicks.map(&:first)).index_by(&:rep_id)
+        @dtc_spots = Click.recent(DAYS).where(kind: "dtc").group(:spot).count.sort_by { -_2 }
+        @share_channels = Share.group(:channel).count
+        @open_channels = ShareOpen.group(:channel).count
       end
       format.csv { send_data demand_csv, filename: "findjeesauce-demand-#{Date.current}.csv" }
     end

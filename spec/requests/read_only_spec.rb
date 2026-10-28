@@ -23,7 +23,7 @@ RSpec.describe "Read-only site" do
     writes = Rails.application.routes.routes.reject { |r| r.verb.blank? || r.verb == "GET" }
     expect(writes.map { |r| [ r.verb, r.path.spec.to_s ] }).to contain_exactly(
       [ "POST", "/stores/:store_id/shares(.:format)" ], [ "POST", "/stores/:store_id/sightings(.:format)" ],
-      [ "POST", "/asks(.:format)" ], [ "POST", "/admin/sightings/:id/approve(.:format)" ],
+      [ "POST", "/asks(.:format)" ], [ "POST", "/clicks(.:format)" ], [ "POST", "/admin/sightings/:id/approve(.:format)" ],
       [ "POST", "/admin/sightings/:id/reject(.:format)" ]
     )
   end

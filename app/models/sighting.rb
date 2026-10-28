@@ -2,6 +2,10 @@
 # optional photo waits for approval before anyone sees it. See the migration.
 class Sighting < ApplicationRecord
   MAX_PHOTO_BYTES = 3.megabytes
+  # Photo uploads are OFF [Joel, 2026-10-28] until cayuse decides where
+  # shopper photos should live (a separate private bucket, not our database;
+  # see docs/FINDER_EXTRAS.md). SIGHTING_PHOTOS=1 turns them back on.
+  def self.photos? = ENV["SIGHTING_PHOTOS"] == "1"
   SHOW_DAYS = 90 # older sightings say nothing about the shelf today
 
   validates :store_rep_id, presence: true

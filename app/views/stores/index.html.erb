@@ -30,6 +30,7 @@
     <% end %>
 
     <%= render "stores/flavor_picker" %>
+    <%= render "stores/ships", flavor: @flavor, spot: "finder-tile", class: "mt-6 max-w-xl" %>
     <%= render "stores/retailers", class: "mt-4" %>
     <%= render "stores/delivery", class: "mt-4" %>
     <div class="mt-6 flex flex-wrap items-center gap-x-4 gap-y-2">
@@ -67,10 +68,11 @@
       <div class="max-w-2xl rounded-2xl bg-white p-6">
         <h2 class="font-display text-xl font-bold">No stores found<%= " for “#{@query}”" if @query.present? %>.</h2>
         <p class="mt-2 text-muted">Try a nearby ZIP code or city, or skip the trip: every flavor ships to your door.</p>
-        <a href="https://jeesauce.com" class="mt-4 inline-block rounded-full bg-ink px-5 py-2.5 font-semibold text-white hover:bg-teal-dark">Order online</a>
+        <a href="<%= dtc_url(@flavor, spot: "no-results") %>" class="mt-4 inline-block rounded-full bg-ink px-5 py-2.5 font-semibold text-white hover:bg-teal-dark">Order online</a>
       </div>
     <% end %>
     <% if @nothing_near || (@flavor && @carrier_count.to_i.zero?) %>
+      <%= render "stores/ships", flavor: @flavor, spot: "nothing-near-tile", class: "mt-6 max-w-2xl" %>
       <%= render "stores/ask", flavor: @flavor, class: "mt-6 max-w-2xl" %>
     <% end %>
     <p class="mt-6 text-xs text-muted">Shelves change between deliveries: call ahead to be sure. Seen it somewhere we don't list? Tell us on that store's page.</p>

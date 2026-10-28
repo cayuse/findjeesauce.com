@@ -1,5 +1,8 @@
 <% content_for :title, "Team" %>
 <div class="mx-auto max-w-6xl px-4 pt-8 sm:px-6">
+  <% if session[:admin_email] %>
+    <p class="text-right text-xs text-muted">Signed in as <%= session[:admin_email] %> · <%= link_to "Sign out", admin_sign_out_path, class: "underline" %></p>
+  <% end %>
   <h1 class="font-display text-3xl font-extrabold">Where shoppers want JeeSauce</h1>
   <p class="mt-1 text-muted">Last <%= Admin::DashboardController::DAYS %> days. Places are rounded to about 7 miles; nothing identifies a shopper.</p>
 
@@ -47,6 +50,34 @@
       <ul class="mt-3 text-sm"><% @asks.each do |chain, n| %><li class="flex justify-between border-t border-line py-1.5"><span><%= Retailer::REQUESTS.dig(chain, :name) || "In person / other" %></span><span class="tabular-nums"><%= n %></span></li><% end %></ul>
       <h2 class="mt-8 font-display text-xl font-bold">Store asks, by ZIP</h2>
       <ul class="mt-3 text-sm"><% @ask_places.each do |zip, n| %><li class="flex justify-between border-t border-line py-1.5"><span><%= zip %></span><span class="tabular-nums"><%= n %></span></li><% end %></ul>
+    </section>
+  </div>
+
+  <div class="mt-10 grid gap-8 lg:grid-cols-3">
+    <section>
+      <h2 class="font-display text-xl font-bold">Buy clicks</h2>
+      <p class="mt-1 text-sm text-muted">Clicks out from the finder, last <%= Admin::DashboardController::DAYS %> days.</p>
+      <ul class="mt-3 text-sm"><% @clicks.each do |(kind, target), n| %><li class="flex justify-between border-t border-line py-1.5"><span><%= target %> <span class="text-muted"><%= kind %></span></span><span class="tabular-nums"><%= n %></span></li><% end %></ul>
+      <h3 class="mt-6 font-semibold">jeesauce.com clicks by spot</h3>
+      <ul class="mt-2 text-sm"><% @dtc_spots.each do |spot, n| %><li class="flex justify-between border-t border-line py-1.5"><span><%= spot || "–" %></span><span class="tabular-nums"><%= n %></span></li><% end %></ul>
+      <p class="mt-2 text-xs text-muted">Orders from these show in Shopify under UTM source “findjeesauce”.</p>
+    </section>
+    <section>
+      <h2 class="font-display text-xl font-bold">“Buy at H-E-B” by store</h2>
+      <p class="mt-1 text-sm text-muted">To compare with H-E-B's eCom sales per store (Circana).</p>
+      <ul class="mt-3 text-sm"><% @heb_clicks.each do |rep_id, n| %><li class="flex justify-between border-t border-line py-1.5"><span><%= @heb_stores[rep_id]&.name || "Store #{rep_id}" %></span><span class="tabular-nums"><%= n %></span></li><% end %></ul>
+    </section>
+    <section>
+      <h2 class="font-display text-xl font-bold">Shares and opens</h2>
+      <p class="mt-1 text-sm text-muted">Sent by channel, and how many friends opened the link (all time).</p>
+      <table class="mt-3 w-full text-left text-sm">
+        <thead class="text-xs text-muted uppercase"><tr><th class="py-1">Channel</th><th>Sent</th><th>Opened</th></tr></thead>
+        <tbody>
+          <% { "text" => "text", "email" => "email", "whatsapp" => "whatsapp", "copy" => "link", "native" => "sheet" }.each do |sent, opened| %>
+            <tr class="border-t border-line"><td class="py-1.5"><%= { "copy" => "copied link", "native" => "phone share sheet" }.fetch(sent, sent) %></td><td class="tabular-nums"><%= @share_channels[sent].to_i %></td><td class="tabular-nums"><%= @open_channels[opened].to_i %></td></tr>
+          <% end %>
+        </tbody>
+      </table>
     </section>
   </div>
 

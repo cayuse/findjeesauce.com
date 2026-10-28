@@ -12,10 +12,15 @@ Rails.application.routes.draw do
   get "sightings/:id/photo", to: "sightings#photo", as: :sighting_photo
   # "Ask your store": counted for the demand map.
   resources :asks, only: :create
+  # Clicks out to retailers, delivery apps, jeesauce.com, directions.
+  resources :clicks, only: :create
 
   # The team's pages (Basic auth; see Admin::BaseController).
+  get "auth/google_oauth2/callback", to: "admin/sessions#callback", as: :google_callback
   namespace :admin do
     root "dashboard#show"
+    get "sign-in", to: "sessions#new", as: :sign_in
+    get "sign-out", to: "sessions#destroy", as: :sign_out
     get "demand", to: "dashboard#show", as: :demand
     resources :sightings, only: :index do
       member do

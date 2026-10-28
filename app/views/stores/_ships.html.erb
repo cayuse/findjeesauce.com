@@ -1,0 +1,17 @@
+<%# "Ships to your door": jeesauce.com first, before the delivery apps (our
+    own store earns the most, and every flavor is always there). flavor: the
+    chosen one, else all five lids. spot: where on the finder, for UTM. %>
+<% flavor = local_assigns[:flavor] %>
+<a href="<%= dtc_url(flavor, spot: local_assigns[:spot]) %>"
+   class="<%= class_names("group flex items-center gap-4 rounded-2xl bg-ink p-4 text-white shadow-sm transition hover:-translate-y-px hover:bg-teal-dark", local_assigns[:class]) %>">
+  <span class="flex shrink-0 -space-x-3" aria-hidden="true">
+    <% (flavor ? [ flavor ] : Flavor.all).each do |f| %>
+      <%= lid_icon f, size: 40, class: "ring-2 ring-ink group-hover:ring-teal-dark" %>
+    <% end %>
+  </span>
+  <span class="min-w-0 flex-1">
+    <span class="block font-display text-lg font-bold leading-tight">Ships to your door from jeesauce.com</span>
+    <span class="block text-sm text-white/75"><%= flavor ? "Order #{flavor.name} online" : "Every flavor, always in stock online" %></span>
+  </span>
+  <span aria-hidden="true" class="text-xl">→</span>
+</a>

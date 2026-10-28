@@ -5,5 +5,6 @@
   <span class="leading-tight">
     <span class="block text-[0.65rem] font-semibold tracking-widest text-white/70 uppercase">JeeSauce love spread</span>
     <span class="font-display text-xl font-extrabold tabular-nums"><span class="inline-block" data-love-count><%= number_with_delimiter(love_count) %></span> <span class="text-sm font-semibold text-white/80">times</span></span>
+    <% if love_count < 100 %><span class="block text-[0.7rem] font-semibold text-halo">Be one of the first 100 to spread the love!</span><% end %>
   </span>
 </div>

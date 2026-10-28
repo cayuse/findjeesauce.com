@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_28_200400) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_28_220200) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -22,6 +22,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_28_200400) do
     t.string "flavor"
     t.datetime "created_at", null: false
     t.index ["created_at"], name: "index_asks_on_created_at"
+  end
+
+  create_table "clicks", force: :cascade do |t|
+    t.string "kind", null: false
+    t.string "target", null: false
+    t.bigint "store_rep_id"
+    t.string "flavor"
+    t.string "spot"
+    t.datetime "created_at", null: false
+    t.index ["created_at"], name: "index_clicks_on_created_at"
+    t.index ["target", "store_rep_id"], name: "index_clicks_on_target_and_store_rep_id"
   end
 
   create_table "link_checks", force: :cascade do |t|
@@ -49,6 +60,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_28_200400) do
     t.datetime "created_at", null: false
     t.index ["created_at"], name: "index_searches_on_created_at"
     t.index ["lat", "lng"], name: "index_searches_on_lat_and_lng"
+  end
+
+  create_table "share_opens", force: :cascade do |t|
+    t.bigint "store_rep_id", null: false
+    t.string "channel", null: false
+    t.datetime "created_at", null: false
+    t.index ["created_at"], name: "index_share_opens_on_created_at"
   end
 
   create_table "shares", force: :cascade do |t|
@@ -84,7 +102,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_28_200400) do
     t.datetime "rep_updated_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.date "last_delivered_on"
+    t.boolean "stocked_recently", default: false, null: false
     t.index ["rep_id"], name: "index_stores_on_rep_id", unique: true
     t.index ["state", "city"], name: "index_stores_on_state_and_city"
     t.index ["zip"], name: "index_stores_on_zip"
