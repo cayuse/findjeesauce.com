@@ -34,6 +34,7 @@ env:
     - FINDJEESAUCE_DATABASE_PASSWORD
     - REP_API_TOKEN                   # rep token, client findjeesauce, scope stores:read
     - GOOGLE_MAPS_BROWSER_API_KEY     # our OWN key (not rep's), referrer-locked to our hosts
+    - ADMIN_PASSWORD                  # /admin, user "jee" (admin.env)
 
 aliases:
   console: app exec --interactive --reuse "bin/rails console"

@@ -6,6 +6,24 @@ Rails.application.routes.draw do
   resources :stores, only: :show do
     # The "Spread the love" counter: one per press of a share button.
     resources :shares, only: :create
+    # "I found it!", with an optional photo for approval.
+    resources :sightings, only: :create
+  end
+  get "sightings/:id/photo", to: "sightings#photo", as: :sighting_photo
+  # "Ask your store": counted for the demand map.
+  resources :asks, only: :create
+
+  # The team's pages (Basic auth; see Admin::BaseController).
+  namespace :admin do
+    root "dashboard#show"
+    get "demand", to: "dashboard#show", as: :demand
+    resources :sightings, only: :index do
+      member do
+        get :photo
+        post :approve
+        post :reject
+      end
+    end
   end
 
   # The same finder without our header and footer, for jeesauce.com to frame

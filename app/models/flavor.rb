@@ -3,19 +3,22 @@
 # lid (the icon), the jeesauce.com product page and, per chain, a product page
 # on the chain's own site.
 #
+# UPCs (9 oz) are jeedata's (sql/seeds/flavor_map.csv). Chipotle's and Dilly
+# Dilly's check digits are computed from the 11-digit codes there.
+#
 # Names match rep's flavor names exactly ("Sun-Dried Tomato Basil"). Shop URLs
 # are the live store's product handles; the jeesauce.com rebuild 301s them.
-class Flavor < Data.define(:name, :slug, :shop_url, :color)
+class Flavor < Data.define(:name, :slug, :shop_url, :color, :upc)
   ALL = [
-    new(name: "Original", slug: "original", color: "#48aed2",
+    new(name: "Original", upc: "854182007858", slug: "original", color: "#48aed2",
         shop_url: "https://jeesauce.com/products/8oz-original-jee-sauce"),
-    new(name: "Cilantro Lime", slug: "cilantro-lime", color: "#489636",
+    new(name: "Cilantro Lime", upc: "854182007865", slug: "cilantro-lime", color: "#489636",
         shop_url: "https://jeesauce.com/products/8oz-cilantro-lime-jee-sauce"),
-    new(name: "Sun-Dried Tomato Basil", slug: "sun-dried-tomato-basil", color: "#d21e24",
+    new(name: "Sun-Dried Tomato Basil", upc: "854182007872", slug: "sun-dried-tomato-basil", color: "#d21e24",
         shop_url: "https://jeesauce.com/products/new-layered-sun-dried-tomato-balsamic-basil"),
-    new(name: "Dilly Dilly", slug: "dilly-dilly", color: "#24726c",
+    new(name: "Dilly Dilly", upc: "854182007919", slug: "dilly-dilly", color: "#24726c",
         shop_url: "https://jeesauce.com/products/dilly-dilly"),
-    new(name: "Chipotle", slug: "chipotle", color: "#d83024",
+    new(name: "Chipotle", upc: "854182007902", slug: "chipotle", color: "#d83024",
         shop_url: "https://jeesauce.com/products/8oz-chipotle-jeesauce")
   ].freeze
 
@@ -85,6 +88,13 @@ class Flavor < Data.define(:name, :slug, :shop_url, :color)
     CHAIN_LINKS.keys.find { |key| name.to_s.start_with?(key) }
   end
 
-  def self.chain_link(chain, flavor_name) = CHAIN_LINKS.dig(chain, flavor_name)
+  # nil when there's no link, or the nightly check found it gone (LinkCheck).
+  def self.chain_link(chain, flavor_name)
+    url = CHAIN_LINKS.dig(chain, flavor_name)
+    url unless url && LinkCheck.broken?(url)
+  end
+
+  def self.retailers = RETAILERS.reject { |r| LinkCheck.broken?(r[:url]) }
+  def self.delivery = DELIVERY.reject { |d| LinkCheck.broken?(d[:url]) }
   def self.chain_label(chain) = CHAIN_LABELS.fetch(chain, chain)
 end

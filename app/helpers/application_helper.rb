@@ -31,4 +31,15 @@ module ApplicationHelper
     where = [ store.address_line, store.place_line ].compact_blank.join(", ")
     "Found JeeSauce whipped almond hummus at #{store.name}, #{where}. Here's where:"
   end
+
+  # "Delivered Oct 2026 · Spotted by a shopper 3 days ago": what we know about
+  # the shelf, and how old it is. Never "in stock". @spotted: rep_id => time.
+  def freshness_line(store)
+    parts = []
+    parts << "Delivered #{store.last_delivered_on.strftime('%b %Y')}" if store.last_delivered_on
+    if (seen = @spotted&.dig(store.rep_id))
+      parts << "Spotted by a shopper #{seen > 1.day.ago ? 'today' : "#{time_ago_in_words(seen)} ago"}"
+    end
+    parts.join(" · ").presence
+  end
 end

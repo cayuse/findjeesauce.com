@@ -1,0 +1,24 @@
+<% content_for :title, "Photos to approve" %>
+<div class="mx-auto max-w-6xl px-4 pt-8 sm:px-6">
+  <%= link_to "← Team page", admin_root_path, class: "text-sm text-muted hover:text-ink" %>
+  <h1 class="mt-2 font-display text-3xl font-extrabold">Photos to approve</h1>
+  <p class="mt-1 text-muted">Approve only a clear shot of JeeSauce on a shelf: no faces, no people, nothing rude. Rejecting deletes the photo (the sighting itself still counts).</p>
+  <% if @sightings.empty? %>
+    <p class="mt-6 rounded-2xl bg-white p-6">Nothing waiting. 🎉</p>
+  <% else %>
+    <ul class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <% @sightings.each do |sighting| %>
+        <% store = @stores[sighting.store_rep_id] %>
+        <li class="rounded-2xl bg-white p-3 shadow-sm">
+          <img src="<%= photo_admin_sighting_path(sighting) %>" alt="Shopper photo" class="aspect-square w-full rounded-xl object-cover">
+          <p class="mt-2 text-sm font-semibold"><%= store ? link_to(store.name, store_path(store), class: "underline underline-offset-2") : "Store #{sighting.store_rep_id} (no longer listed)" %></p>
+          <p class="text-xs text-muted"><%= [ store&.place_line, sighting.flavor, "#{time_ago_in_words(sighting.created_at)} ago" ].compact.join(" · ") %></p>
+          <div class="mt-3 flex gap-2">
+            <%= button_to "Approve", approve_admin_sighting_path(sighting), class: "rounded-full bg-ink px-4 py-2 text-sm font-semibold text-white hover:bg-teal-dark" %>
+            <%= button_to "Reject", reject_admin_sighting_path(sighting), class: "rounded-full border border-ink px-4 py-2 text-sm font-semibold hover:bg-red-700 hover:text-white" %>
+          </div>
+        </li>
+      <% end %>
+    </ul>
+  <% end %>
+</div>

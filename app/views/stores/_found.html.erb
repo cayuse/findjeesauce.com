@@ -1,0 +1,59 @@
+<%# "I found it!" (item 7): a shopper confirms JeeSauce is on this shelf,
+    optionally with a photo. Photos are shrunk to a JPEG in the browser
+    (found_controller.js), stripped of metadata on the server, and shown only
+    once approved. Without JavaScript the form still works for JPEGs. %>
+<section id="found" class="mt-8 scroll-mt-4 rounded-2xl bg-white p-4 shadow-sm sm:p-5">
+  <% case @found %>
+  <% when "1" %>
+    <p class="mb-3 rounded-xl bg-halo p-3 font-semibold" role="status">🎉 Thanks! You just helped the next shopper find it.</p>
+  <% when "photo" %>
+    <p class="mb-3 rounded-xl bg-halo p-3 font-semibold" role="status">🎉 Thanks! Your photo shows here once the JeeSauce team has had a look.</p>
+  <% when "bad" %>
+    <p class="mb-3 rounded-xl bg-red-50 p-3 text-sm text-red-800" role="status">That photo didn't come through (JPEG, under 3 MB). Your sighting wasn't saved; try again, or send it without a photo.</p>
+  <% when "slow" %>
+    <p class="mb-3 rounded-xl bg-cream p-3 text-sm" role="status">Thanks, that's plenty for now. Try again in a little while.</p>
+  <% end %>
+  <h2 class="font-display text-xl font-bold">Seen it here?</h2>
+  <p class="mt-1 text-sm text-muted">Tell the next shopper it's really on the shelf. Snap a photo if you like.</p>
+  <%= form_with url: store_sightings_path(@store), method: :post, multipart: true, local: true,
+        data: { controller: "found", action: "submit->found#submit" }, class: "mt-3" do %>
+    <%= hidden_field_tag :embed, "1", id: nil if embed? %>
+    <fieldset>
+      <legend class="text-sm font-semibold">Which flavor? <span class="font-normal text-muted">(optional)</span></legend>
+      <div class="mt-2 flex flex-wrap gap-2">
+        <% (@store.sorted_flavors.filter_map { Flavor.named(_1) }.presence || Flavor.all).each do |flavor| %>
+          <label class="cursor-pointer">
+            <input type="radio" name="flavor" value="<%= flavor.slug %>" class="peer sr-only">
+            <span class="inline-flex items-center gap-1.5 rounded-full border border-line bg-white py-0.5 pr-2.5 pl-0.5 text-xs peer-checked:border-ink peer-checked:bg-ink peer-checked:text-white peer-focus-visible:ring-2 peer-focus-visible:ring-teal">
+              <%= lid_icon flavor, size: 20 %><%= flavor.name %>
+            </span>
+          </label>
+        <% end %>
+      </div>
+    </fieldset>
+    <label class="mt-3 block text-sm">
+      <span class="font-semibold">Photo</span> <span class="text-muted">(optional)</span>
+      <input type="file" name="photo" accept="image/*" data-found-target="photo" data-action="change->found#picked"
+             class="mt-1 block w-full text-sm file:mr-3 file:rounded-full file:border-0 file:bg-cream file:px-3 file:py-1.5 file:font-semibold">
+    </label>
+    <img hidden alt="Your photo" data-found-target="preview" class="mt-2 max-h-48 rounded-xl">
+    <label class="mt-2 flex items-start gap-2 text-xs text-muted">
+      <input type="checkbox" name="photo_ok" value="1" data-found-target="ok" class="mt-0.5">
+      <span>JeeSauce may show my photo here and on its social pages. It's my photo, and no one's face is in it.</span>
+    </label>
+    <p hidden class="mt-2 text-xs text-red-700" data-found-target="message"></p>
+    <button type="submit" data-found-target="submit" class="mt-3 rounded-full bg-ink px-5 py-2.5 font-semibold text-white hover:bg-teal-dark">I found it here! 🎉</button>
+  <% end %>
+
+  <% if @photos.any? %>
+    <h3 class="mt-6 text-sm font-semibold">Spotted by shoppers</h3>
+    <ul class="mt-2 grid grid-cols-3 gap-2">
+      <% @photos.each do |photo| %>
+        <li>
+          <img src="<%= sighting_photo_path(photo) %>" loading="lazy" class="aspect-square w-full rounded-xl object-cover"
+               alt="JeeSauce<%= " #{photo.flavor}" if photo.flavor %> on the shelf at <%= @store.name %>, <%= time_ago_in_words(photo.created_at) %> ago">
+        </li>
+      <% end %>
+    </ul>
+  <% end %>
+</section>

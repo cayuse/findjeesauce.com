@@ -68,6 +68,7 @@ class StoreFeed
       lat: r["lat"],
       lng: r["lng"],
       flavors: Array(r["flavors"]).map(&:to_s),
+      last_delivered_on: (Date.iso8601(r["last_delivered_on"].to_s) rescue nil),
       rep_updated_at: r["updated_at"].present? ? Time.iso8601(r["updated_at"]) : nil
     }
   end
